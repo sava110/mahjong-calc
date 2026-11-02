@@ -29,7 +29,7 @@ export const TileColorSwitcher: FC = () => {
         <button
           type="button"
           key={item.id}
-          className="flex flex-1 select-none flex-col divide-y divide-neutral-300 overflow-hidden rounded-md border border-neutral-300 bg-white shadow transition hover:bg-neutral-200 focus:outline-none focus:ring-2 dark:divide-neutral-700 dark:border-neutral-700 dark:bg-black dark:hover:bg-neutral-800"
+          className="flex flex-1 select-none flex-col divide-y divide-stone-300 overflow-hidden rounded-md border border-stone-300 bg-white shadow transition hover:bg-stone-200 focus:outline-none focus:ring-2 dark:divide-stone-700 dark:border-stone-700 dark:bg-stone-950 dark:hover:bg-stone-800"
           onClick={() =>
             dispatch({
               type: 'set-app-config',
@@ -41,7 +41,7 @@ export const TileColorSwitcher: FC = () => {
           <div className="flex w-full items-center gap-1 p-2">
             <div className="basis-4">
               {appConfig.tileColor === item.id && (
-                <MdRadioButtonChecked className="text-blue-600 dark:text-blue-400" />
+                <MdRadioButtonChecked className="text-primary-700 dark:text-primary-400" />
               )}
               {appConfig.tileColor !== item.id && <MdRadioButtonUnchecked />}
             </div>

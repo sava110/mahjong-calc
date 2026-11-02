@@ -16,7 +16,7 @@ const Link: FC<{ href: string; children?: React.ReactNode }> = ({
     href={href}
     target="_blank"
     rel="noopener noreferrer"
-    className="text-blue-700 transition hover:text-blue-500 dark:text-blue-300 hover:dark:text-blue-500"
+    className="text-primary-700 transition hover:text-primary-500 dark:text-primary-300 hover:dark:text-primary-500"
   >
     {children}
   </a>
@@ -29,10 +29,10 @@ export const About: FC = () => {
       <div className="flex flex-col">
         <h1 className="text-4xl font-bold">{t('header.title')}</h1>
         <div className="flex items-baseline gap-4">
-          <h2 className="text-xl text-neutral-700 dark:text-neutral-300">
+          <h2 className="text-xl text-stone-700 dark:text-stone-300">
             {packageJSON.version}
           </h2>
-          <h3 className="truncate font-mono text-sm text-neutral-600 dark:text-neutral-400">
+          <h3 className="truncate font-mono text-sm text-stone-600 dark:text-stone-400">
             {COMMIT_HASH}
           </h3>
         </div>

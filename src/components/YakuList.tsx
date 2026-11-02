@@ -12,15 +12,15 @@ interface YakuBadgeProps {
   yakuman?: boolean;
 }
 const YakuBadge: FC<YakuBadgeProps> = ({ l, r, yakuman = false }) => (
-  <div className="flex overflow-hidden rounded-full border border-neutral-100 dark:border-neutral-800">
-    <div className="flex items-center bg-neutral-200 px-2 text-center dark:bg-neutral-700">
+  <div className="flex overflow-hidden rounded-full border border-stone-100 dark:border-stone-800">
+    <div className="flex items-center bg-stone-200 px-2 text-center dark:bg-stone-700">
       {l}
     </div>
     <div
       className={
         yakuman
           ? 'flex items-center bg-purple-600 px-2 text-center text-white'
-          : 'flex items-center bg-neutral-300 px-2 text-center dark:bg-neutral-600'
+          : 'flex items-center bg-stone-300 px-2 text-center dark:bg-stone-600'
       }
     >
       {r}
@@ -74,7 +74,7 @@ export const YakuList: FC<YakuListProps> = ({ yaku }) => {
         </div>
       )}
       {!showBazoro && yaku.length === 0 && (
-        <div className="italic text-neutral-500">{t('result.no-yaku')}</div>
+        <div className="italic text-stone-500">{t('result.no-yaku')}</div>
       )}
     </div>
   );

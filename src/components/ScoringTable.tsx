@@ -14,7 +14,7 @@ import { MenuTab } from './ui/MenuTab';
 import { ScoringTableHeader } from './ui/ScoringTableHeader';
 
 const Header: FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="flex items-center justify-center p-2 text-center">
+  <div className="flex items-center justify-center p-1 text-center text-sm sm:p-2 sm:text-base">
     {children}
   </div>
 );
@@ -86,32 +86,38 @@ const Content: FC<ContentProps> = ({ fu, han }) => {
               });
   const className =
     base >= 8000
-      ? 'flex-1 px-2 py-1 bg-purple-600 text-white flex flex-col justify-center items-center'
+      ? 'flex-1 px-1 py-1 sm:px-2 bg-purple-600 text-white flex flex-col justify-center items-center'
       : base >= 6000
-        ? 'flex-1 px-2 py-1 bg-red-600 text-white flex flex-col justify-center items-center'
+        ? 'flex-1 px-1 py-1 sm:px-2 bg-red-600 text-white flex flex-col justify-center items-center'
         : base >= 4000
-          ? 'flex-1 px-2 py-1 bg-orange-600 text-white flex flex-col justify-center items-center'
+          ? 'flex-1 px-1 py-1 sm:px-2 bg-orange-600 text-white flex flex-col justify-center items-center'
           : base >= 3000
-            ? 'flex-1 px-2 py-1 bg-green-600 text-white flex flex-col justify-center items-center'
+            ? 'flex-1 px-1 py-1 sm:px-2 bg-green-600 text-white flex flex-col justify-center items-center'
             : base >= 2000
-              ? 'flex-1 px-2 py-1 bg-blue-600 text-white flex flex-col justify-center items-center'
+              ? 'flex-1 px-1 py-1 sm:px-2 bg-blue-600 text-white flex flex-col justify-center items-center'
               : base >= 1920
-                ? 'flex-1 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-natural-900 dark:bg-natural-100 flex flex-col justify-center items-center'
-                : 'flex-1 px-2 py-1 flex flex-col justify-center items-center';
+                ? 'flex-1 px-1 py-1 sm:px-2 bg-blue-100 dark:bg-blue-900 text-natural-900 dark:bg-natural-100 flex flex-col justify-center items-center'
+                : 'flex-1 px-1 py-1 sm:px-2 flex flex-col justify-center items-center';
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-md bg-neutral-200 dark:bg-neutral-800">
+    <div className="flex flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-stone-800">
       <div className={className}>
         <div
           className={
             ron === '-'
-              ? 'flex-1 text-lg font-bold opacity-50'
-              : 'flex-1 text-lg font-bold'
+              ? 'flex-1 text-base font-bold opacity-50 sm:text-lg'
+              : 'flex-1 text-base font-bold sm:text-lg'
           }
         >
           {ron}
         </div>
-        <div className={tsumo === '-' ? 'flex-1 opacity-50' : 'flex-1'}>
+        <div
+          className={
+            tsumo === '-'
+              ? 'flex-1 text-xs opacity-50 sm:text-base'
+              : 'flex-1 text-xs sm:text-base'
+          }
+        >
           {tsumo}
         </div>
       </div>
@@ -166,7 +172,7 @@ export const ScoringTable: FC = () => {
           />
         </div>
         <div className="overflow-x-auto">
-          <div className="mx-0 grid grid-cols-[max-content_repeat(4,_minmax(max-content,_1fr))] gap-px p-2">
+          <div className="mx-0 grid grid-cols-[max-content_repeat(4,_minmax(max-content,_1fr))] gap-px py-2 sm:p-2">
             {(
               ['head', 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110] as const
             ).map(fu => (
@@ -193,12 +199,12 @@ export const ScoringTable: FC = () => {
                           {t('scoring-table.fu', { count: fu })}
                         </div>
                         {fu === 20 && (
-                          <div className="text-sm text-neutral-500">
+                          <div className="text-sm text-stone-500">
                             {t('scoring-table.pinfu-tsumo')}
                           </div>
                         )}
                         {fu === 25 && (
-                          <div className="text-sm text-neutral-500">
+                          <div className="text-sm text-stone-500">
                             {t('scoring-table.chitoitsu')}
                           </div>
                         )}
@@ -212,7 +218,7 @@ export const ScoringTable: FC = () => {
               </React.Fragment>
             ))}
           </div>
-          <div className="mx-0 grid grid-cols-[repeat(5,_minmax(max-content,_1fr))] gap-px p-2">
+          <div className="mx-0 grid grid-cols-[repeat(5,_minmax(max-content,_1fr))] gap-px py-2 sm:p-2">
             <Header>
               <div className="font-bold">
                 {t('scoring-table.han', { count: 5 + bazoro })}

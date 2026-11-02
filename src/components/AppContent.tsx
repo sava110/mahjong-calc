@@ -30,7 +30,7 @@ const AppContent: FC = () => {
     );
   }
   return (
-    <div className="relative flex-1 overflow-x-clip bg-neutral-100 text-neutral-900 transition dark:bg-neutral-900 dark:text-neutral-100">
+    <div className="relative flex-1 overflow-x-clip bg-stone-100 text-stone-900 transition dark:bg-stone-900 dark:text-stone-100">
       <div key={currentScreen} className={animationClasses[direction]}>
         {currentScreen === 'main' && <Calculator />}
         {currentScreen === 'scoring-table' && <ScoringTable />}

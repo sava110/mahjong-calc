@@ -8,6 +8,9 @@ interface MenuTabProps {
   onSetIndex?: (index: number) => void;
 }
 
+const itemClasses =
+  'flex flex-1 justify-center rounded-lg p-2 transition hover:bg-white/60 disabled:bg-white disabled:font-bold disabled:text-primary-700 disabled:shadow-sm dark:hover:bg-stone-700/60 dark:disabled:bg-stone-700 dark:disabled:text-primary-300';
+
 export const MenuTab: FC<MenuTabProps> = ({
   items = [],
   index = 0,
@@ -17,19 +20,15 @@ export const MenuTab: FC<MenuTabProps> = ({
   <nav
     className={
       row
-        ? 'flex flex-row gap-2 overflow-auto'
-        : 'flex flex-row gap-2 overflow-auto sm:flex-col'
+        ? 'flex flex-row gap-1 overflow-auto rounded-xl bg-stone-200 p-1 dark:bg-stone-800'
+        : 'flex flex-row gap-1 overflow-auto rounded-xl bg-stone-200 p-1 dark:bg-stone-800 sm:flex-col'
     }
   >
     {items.map((item, i) => (
       <button
         type="button"
         key={i}
-        className={
-          row
-            ? 'flex flex-1 justify-center rounded p-2 transition hover:bg-blue-100 disabled:bg-blue-200 disabled:font-bold disabled:text-blue-700 hover:dark:bg-blue-900 disabled:dark:bg-blue-800 disabled:dark:text-blue-100'
-            : 'flex flex-1 justify-center rounded p-2 transition hover:bg-blue-100 disabled:bg-blue-200 disabled:font-bold disabled:text-blue-700 hover:dark:bg-blue-900 disabled:dark:bg-blue-800 disabled:dark:text-blue-100 sm:justify-start'
-        }
+        className={row ? itemClasses : `${itemClasses} sm:justify-start`}
         disabled={i === index}
         onClick={() => onSetIndex(i)}
       >

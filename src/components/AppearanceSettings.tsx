@@ -24,7 +24,7 @@ export const AppearanceSettings: FC = () => {
           label={
             <div className="flex items-baseline gap-2">
               <div>{t('locale:name')}</div>
-              <div className="text-xs text-neutral-500">
+              <div className="text-xs text-stone-500">
                 {i18n.resolvedLanguage}
               </div>
             </div>
@@ -37,7 +37,7 @@ export const AppearanceSettings: FC = () => {
               <button
                 type="button"
                 key={lng}
-                className="group flex items-center gap-2 p-2 hover:bg-blue-500 hover:text-white"
+                className="group flex items-center gap-2 p-2 hover:bg-primary-600 hover:text-white"
                 onClick={() => {
                   i18n.changeLanguage(lng);
                   setOpenLanguageMenu(false);
@@ -46,7 +46,7 @@ export const AppearanceSettings: FC = () => {
                 <MdCheck
                   className={
                     lng === i18n.resolvedLanguage
-                      ? 'visible text-blue-600 group-hover:text-white dark:text-blue-400'
+                      ? 'visible text-primary-700 group-hover:text-white dark:text-primary-400'
                       : 'invisible'
                   }
                 />
@@ -56,7 +56,7 @@ export const AppearanceSettings: FC = () => {
                       ? `${t('locale:name', { lng })}`
                       : '???'}
                   </div>
-                  <div className="text-xs text-neutral-500 group-hover:text-neutral-300">
+                  <div className="text-xs text-stone-500 group-hover:text-stone-300">
                     {lng}
                   </div>
                 </div>

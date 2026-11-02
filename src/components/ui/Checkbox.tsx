@@ -17,11 +17,13 @@ export const Checkbox: FC<CheckboxProps> = ({
   <div className="flex items-center gap-2">
     <input
       id={id}
-      className="h-5 w-5 rounded-md border border-neutral-300 bg-white shadow transition checked:bg-blue-600 hover:bg-neutral-200 checked:hover:bg-blue-700 dark:border-neutral-700 dark:bg-black dark:checked:bg-blue-500 dark:hover:bg-neutral-800 dark:checked:hover:bg-blue-600"
+      className="h-6 w-6 rounded-md border border-stone-300 bg-white shadow transition checked:bg-primary-700 hover:bg-stone-200 checked:hover:bg-primary-700 dark:border-stone-700 dark:bg-stone-950 dark:checked:bg-primary-600 dark:hover:bg-stone-800 dark:checked:hover:bg-primary-700"
       type="checkbox"
       checked={checked}
       onChange={e => onChange(e.target.checked)}
     />
-    <label htmlFor={id}>{children}</label>
+    <label htmlFor={id} className="py-1">
+      {children}
+    </label>
   </div>
 );

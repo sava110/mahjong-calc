@@ -3,6 +3,7 @@ locale:
 translation:
   header:
     title: Mahjong Score Calculator
+    calculator: Calculator
     update: Update
     help: Help
     scoring-table: Scoring Table

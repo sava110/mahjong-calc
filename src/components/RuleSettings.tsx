@@ -32,7 +32,7 @@ export const RuleSettings: FC = () => {
             {Object.keys(savedRules).length === 0 && (
               <div className="flex items-center gap-2 p-2">
                 <MdCheck className="invisible" />
-                <div className="select-none text-neutral-500">
+                <div className="select-none text-stone-500">
                   {t('settings.empty')}
                 </div>
               </div>
@@ -43,7 +43,7 @@ export const RuleSettings: FC = () => {
                 <div key={name} className="flex">
                   <button
                     type="button"
-                    className="group peer flex flex-1 items-center gap-2 overflow-hidden p-2 hover:bg-blue-500 hover:text-white"
+                    className="group peer flex flex-1 items-center gap-2 overflow-hidden p-2 hover:bg-primary-600 hover:text-white"
                     onClick={() => {
                       dispatch({ type: 'set-current-rule', payload: rule });
                       setOpenPresetMenu(false);
@@ -52,7 +52,7 @@ export const RuleSettings: FC = () => {
                     <MdCheck
                       className={
                         name === ruleName
-                          ? 'visible text-blue-600 group-hover:text-white dark:text-blue-400'
+                          ? 'visible text-primary-700 group-hover:text-white dark:text-primary-400'
                           : 'invisible'
                       }
                     />
@@ -62,7 +62,7 @@ export const RuleSettings: FC = () => {
                   </button>
                   <button
                     type="button"
-                    className="flex items-center justify-center px-3 hover:bg-red-500 hover:text-white peer-hover:bg-blue-500 peer-hover:text-white"
+                    className="flex items-center justify-center px-3 hover:bg-red-500 hover:text-white peer-hover:bg-primary-600 peer-hover:text-white"
                     onClick={() =>
                       dispatch({ type: 'delete-saved-rule', payload: name })
                     }
@@ -73,10 +73,10 @@ export const RuleSettings: FC = () => {
               ))}
             {typeof ruleName === 'undefined' && (
               <>
-                <div className="my-1 border-t border-neutral-300 dark:border-neutral-700" />
+                <div className="my-1 border-t border-stone-300 dark:border-stone-700" />
                 <div className="flex items-center gap-2 px-2">
                   <MdCheck className="invisible" />
-                  <div className="select-none pt-1 text-sm text-neutral-500">
+                  <div className="select-none pt-1 text-sm text-stone-500">
                     {t(
                       typeof savedRules[newRuleName] === 'undefined'
                         ? 'settings.save-as'
@@ -90,7 +90,7 @@ export const RuleSettings: FC = () => {
                     type="text"
                     size={1}
                     placeholder={t('settings.name') as string}
-                    className="w-full rounded-md border border-neutral-300 bg-white p-1 transition dark:border-neutral-700 dark:bg-black"
+                    className="w-full rounded-md border border-stone-300 bg-white p-1 transition dark:border-stone-700 dark:bg-stone-950"
                     onInput={e => setNewRuleName(e.currentTarget.value)}
                     onKeyDown={e => {
                       if (e.key === 'Enter' && newRuleName.length !== 0) {
@@ -105,7 +105,7 @@ export const RuleSettings: FC = () => {
                   />
                   <button
                     type="button"
-                    className="flex items-center justify-center rounded-md p-2 hover:bg-blue-500 hover:text-white disabled:text-neutral-500 disabled:hover:bg-transparent disabled:hover:text-neutral-500"
+                    className="flex items-center justify-center rounded-md p-2 hover:bg-primary-600 hover:text-white disabled:text-stone-500 disabled:hover:bg-transparent disabled:hover:text-stone-500"
                     disabled={newRuleName.length === 0}
                     onClick={() => {
                       dispatch({
@@ -129,7 +129,7 @@ export const RuleSettings: FC = () => {
           {ruleName ?? t('settings.untitled-rule')}
         </div>
       </div>
-      <div className="border-t border-neutral-300 dark:border-neutral-700" />
+      <div className="border-t border-stone-300 dark:border-stone-700" />
       <RuleEditor
         rule={currentRule}
         onChange={rule => dispatch({ type: 'set-current-rule', payload: rule })}

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useStore } from '../contexts/store';
 import { usePrefersColorScheme } from '../hooks/dom';
 import { AppContentLoading } from './AppContentLoading';
+import { BottomNav } from './BottomNav';
 import { Footer } from './Footer';
 import { Header } from './Header';
 
@@ -37,6 +38,7 @@ export const App: FC = () => {
         <AppContent />
       </Suspense>
       <Footer />
+      <BottomNav />
     </div>
   );
 };

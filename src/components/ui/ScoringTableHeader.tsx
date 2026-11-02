@@ -15,8 +15,8 @@ const HeaderButton: FC<{
     type="button"
     className={
       active
-        ? 'bg-neutral-200 px-4 py-2 transition hover:bg-neutral-300 dark:bg-neutral-700 dark:hover:bg-neutral-600'
-        : 'px-4 py-2 transition hover:bg-neutral-200 dark:hover:bg-neutral-700'
+        ? 'bg-stone-200 px-4 py-2 transition hover:bg-stone-300 dark:bg-stone-700 dark:hover:bg-stone-600'
+        : 'px-4 py-2 transition hover:bg-stone-200 dark:hover:bg-stone-700'
     }
     onClick={onClick}
   >
@@ -32,7 +32,7 @@ export const ScoringTableHeader: FC = () => {
   const isDealer = table.seat === 'east';
 
   return (
-    <div className="sticky top-12 z-20 flex items-start justify-center bg-white/80 shadow backdrop-blur transition dark:bg-neutral-800/80 sm:px-2">
+    <div className="sticky top-12 z-20 flex items-start justify-center bg-white/80 shadow backdrop-blur transition dark:bg-stone-800/80 sm:px-2">
       <HeaderButton
         onClick={() =>
           dispatch({
@@ -65,7 +65,7 @@ export const ScoringTableHeader: FC = () => {
           </div>
         </HeaderButton>
         {openTableSettings && (
-          <div className="flex gap-4 bg-neutral-200 py-1 px-2 dark:bg-neutral-700">
+          <div className="flex gap-4 bg-stone-200 py-1 px-2 dark:bg-stone-700">
             {currentScoringTableTab === 'diff' && (
               <SimpleStepper
                 canDecrement={table.deposit > 0}

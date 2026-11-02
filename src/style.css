@@ -3,6 +3,21 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Vermilion (朱) accent, used with the warm stone neutrals */
+@theme {
+  --color-primary-50: #fdf3ef;
+  --color-primary-100: #fbe3d9;
+  --color-primary-200: #f6c3ae;
+  --color-primary-300: #f09b7b;
+  --color-primary-400: #e86e48;
+  --color-primary-500: #df4f27;
+  --color-primary-600: #c93d1b;
+  --color-primary-700: #a83017;
+  --color-primary-800: #872918;
+  --color-primary-900: #6e2517;
+  --color-primary-950: #3c100a;
+}
+
 @layer base {
   button:not(:disabled),
   [role="button"]:not(:disabled) {

@@ -23,7 +23,7 @@ export const ResultGlance: FC<ResultGlanceProps> = ({
     return null;
 
   return (
-    <div className="fixed bottom-0 z-20 flex w-full flex-col gap-1 bg-white/80 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow backdrop-blur dark:bg-neutral-800/80 md:hidden">
+    <div className="fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-20 flex w-full flex-col gap-1 bg-white/80 p-2 shadow backdrop-blur dark:bg-stone-800/80 md:hidden">
       {result.type === 'just-hora' && <div>{t('result.hora')}</div>}
       {result.type === 'tempai' &&
         result.tileAvailabilities.every(a => a.count === 0) && (

@@ -10,7 +10,7 @@ import { Shanten } from './Shanten';
 import { Tempai } from './Tempai';
 
 const Message: FC<{ children?: React.ReactNode }> = ({ children }) => (
-  <div className="flex justify-center py-4 text-neutral-700 dark:text-neutral-300">
+  <div className="flex justify-center py-4 text-stone-700 dark:text-stone-300">
     {children}
   </div>
 );

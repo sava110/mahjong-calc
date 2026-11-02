@@ -50,16 +50,16 @@ export const TileButton: FC<TileButtonProps> = ({
         dim={dim || disabled}
       />
       {focusIndicator && (
-        <div className="absolute inset-x-0 -bottom-1 animate-pulse border-b-2 border-blue-500" />
+        <div className="absolute inset-x-0 -bottom-1 animate-pulse border-b-2 border-primary-600" />
       )}
       {tsumoIndicator && (
         <div className="absolute -top-1.5 flex w-full items-center justify-center">
-          <div className="h-1 w-1 rounded-full bg-blue-500" />
+          <div className="h-1 w-1 rounded-full bg-primary-600" />
         </div>
       )}
       {overlayText.length > 0 && (
         <div className="absolute inset-0 flex h-full w-full select-none items-center justify-center">
-          <div className="rounded bg-white px-1 font-bold leading-none text-blue-500">
+          <div className="rounded bg-white px-1 font-bold leading-none text-primary-500">
             {overlayText}
           </div>
         </div>

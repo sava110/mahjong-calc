@@ -20,7 +20,7 @@ export const KeyboardHelp: FC<KeyboardHelpProps> = ({
         onClick={onClose}
       />
       <div className="mt-24 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4 rounded-md border border-neutral-500/50 bg-white/50 p-2 backdrop-blur-md dark:bg-black/50">
+        <div className="flex flex-col items-center gap-4 rounded-md border border-stone-500/50 bg-white/50 p-2 backdrop-blur-md dark:bg-black/50">
           <div className="text-lg font-bold">
             {t('keyboard-shortcuts.title')}
           </div>

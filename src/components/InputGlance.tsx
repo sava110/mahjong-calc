@@ -79,7 +79,7 @@ export const InputGlance: FC<InputGlanceProps> = ({
   ].join(' · ');
 
   return (
-    <div className="fixed top-12 z-20 flex w-full flex-col gap-1 bg-white/80 p-2 shadow backdrop-blur dark:bg-neutral-800/80 md:hidden">
+    <div className="fixed top-12 z-20 flex w-full flex-col gap-1 bg-white/80 p-2 shadow backdrop-blur dark:bg-stone-800/80 md:hidden">
       <div className="flex justify-between gap-2">
         <div className="font-bold">{t('settings.rule')}</div>
         <div className="flex-1 truncate text-right">{ruleName}</div>

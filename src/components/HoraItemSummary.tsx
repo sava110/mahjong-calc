@@ -29,7 +29,7 @@ export const HoraItemSummary: FC<HoraItemProps> = ({ info }) => {
   const pay = tsumoPayments(base, isDealer, currentRule);
 
   return (
-    <div className="flex items-center gap-2 rounded-md p-2 transition hover:bg-neutral-200 dark:hover:bg-neutral-800">
+    <div className="flex items-center gap-2 rounded-md p-2 transition hover:bg-stone-200 dark:hover:bg-stone-800">
       <div className="relative w-12">
         <Tile tile={info.horaTile} />
         <div className="absolute -top-2 -right-3 text-xs text-white">
@@ -37,7 +37,7 @@ export const HoraItemSummary: FC<HoraItemProps> = ({ info }) => {
             className={
               info.by === 'tsumo'
                 ? 'rounded-full bg-red-500/80 px-1 backdrop-blur-sm'
-                : 'rounded-full bg-blue-500/80 px-1 backdrop-blur-sm'
+                : 'rounded-full bg-primary-600/80 px-1 backdrop-blur-sm'
             }
           >
             {t(`result.${info.by}`)}
@@ -45,7 +45,7 @@ export const HoraItemSummary: FC<HoraItemProps> = ({ info }) => {
         </div>
       </div>
       {base === 0 && (
-        <div className="text-xl italic text-neutral-500">
+        <div className="text-xl italic text-stone-500">
           {t('result.no-yaku')}
         </div>
       )}

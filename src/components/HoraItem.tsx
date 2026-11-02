@@ -15,7 +15,7 @@ export const HoraItem: FC<HoraItemProps> = ({ info }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="flex flex-col rounded-md bg-white shadow dark:bg-black">
+    <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-sm dark:bg-stone-800">
       <button
         type="button"
         onClick={() => setOpen(open => !open)}
@@ -25,7 +25,7 @@ export const HoraItem: FC<HoraItemProps> = ({ info }) => {
       </button>
       {open && (
         <>
-          <div className="mx-2 border-t border-neutral-200 transition peer-hover:opacity-0 dark:border-neutral-800" />
+          <div className="mx-2 border-t border-stone-200 transition peer-hover:opacity-0 dark:border-stone-800" />
           <FuDetail
             fu={
               info.type === 'mentsu'
