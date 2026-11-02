@@ -1,0 +1,6 @@
+node_modules
+dist
+coverage
+.vite
+wasm/decomposer/target
+wasm/decomposer/pkg
