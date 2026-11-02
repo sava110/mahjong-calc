@@ -8,6 +8,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import {
   applyOp,
   createRoom,
+  isPin,
   parseNewRoom,
   parseOp
 } from '../src/lib/room/ops.ts';
@@ -16,21 +17,27 @@ import type { RoomStore } from './db.ts';
 
 export interface AppOptions {
   store: RoomStore;
-  // Rooms cannot be created while this is empty
-  password: string;
   now?: () => number;
 }
 
 const MAX_BODY = 64 * 1024;
 const HEARTBEAT_MS = 25_000;
-// Failed password attempts allowed per client in the window
-const MAX_FAILURES = 10;
-const FAILURE_WINDOW_MS = 10 * 60_000;
+// Rooms one client can create in the window
+const MAX_CREATES = 10;
+const CREATE_WINDOW_MS = 60 * 60_000;
+// Wrong PINs allowed per client and room, and per room from anyone, in the
+// window. A four-digit PIN is only safe behind these limits.
+const MAX_PIN_FAILURES = 10;
+const MAX_ROOM_PIN_FAILURES = 30;
+const PIN_WINDOW_MS = 10 * 60_000;
 // Without 0/O/1/I/L so codes are easy to read aloud
 const ID_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const ID_LENGTH = 6;
 
 const sha256 = (s: string) => createHash('sha256').update(s).digest('hex');
+
+// The room id salts the hash so equal PINs do not look alike
+const pinHashOf = (id: string, pin: string) => sha256(`${id}:${pin}`);
 
 const safeEqual = (a: string, b: string) => {
   const x = Buffer.from(sha256(a));
@@ -88,29 +95,40 @@ const clientKey = (req: IncomingMessage) => {
   return req.socket.remoteAddress ?? '';
 };
 
-export const createApp = ({ store, password, now = Date.now }: AppOptions) => {
-  const subscribers = new Map<string, Set<ServerResponse>>();
-  const failures = new Map<string, number[]>();
-
-  const broadcast = (room: Room) => {
-    for (const res of subscribers.get(room.id) ?? [])
-      res.write(`data: ${JSON.stringify({ version: room.version })}\n\n`);
-  };
-
-  const checkPassword = (req: IncomingMessage, given: unknown) => {
-    if (password === '') throw new HttpError(503, 'room creation disabled');
-    const key = clientKey(req);
-    const t = now();
-    const recent = (failures.get(key) ?? []).filter(
-      f => t - f < FAILURE_WINDOW_MS
+// Timestamps of recent events per key, for rate limits
+class RecentEvents {
+  #events = new Map<string, number[]>();
+  #window: number;
+  constructor(window: number) {
+    this.#window = window;
+  }
+  count(key: string, now: number) {
+    const recent = (this.#events.get(key) ?? []).filter(
+      t => now - t < this.#window
     );
-    if (recent.length >= MAX_FAILURES)
-      throw new HttpError(429, 'too many attempts');
-    if (typeof given !== 'string' || !safeEqual(given, password)) {
-      failures.set(key, [...recent, t]);
-      throw new HttpError(403, 'wrong password');
+    if (recent.length === 0) this.#events.delete(key);
+    else this.#events.set(key, recent);
+    return recent.length;
+  }
+  add(key: string, now: number) {
+    this.#events.set(key, [...(this.#events.get(key) ?? []), now]);
+  }
+  clear(key: string) {
+    this.#events.delete(key);
+  }
+}
+
+export const createApp = ({ store, now = Date.now }: AppOptions) => {
+  const subscribers = new Map<string, Set<ServerResponse>>();
+  const creates = new RecentEvents(CREATE_WINDOW_MS);
+  const pinFailures = new RecentEvents(PIN_WINDOW_MS);
+
+  const notify = (id: string, data: unknown, end = false) => {
+    for (const res of subscribers.get(id) ?? []) {
+      const message = `data: ${JSON.stringify(data)}\n\n`;
+      if (end) res.end(message);
+      else res.write(message);
     }
-    failures.delete(key);
   };
 
   const newId = () => {
@@ -127,6 +145,32 @@ export const createApp = ({ store, password, now = Date.now }: AppOptions) => {
     const room = store.get(id);
     if (room === null) throw new HttpError(404, 'room not found');
     return room;
+  };
+
+  const checkPin = (req: IncomingMessage, id: string, given: unknown) => {
+    const hash = store.pinHash(id);
+    if (hash === null) throw new HttpError(404, 'room not found');
+    const t = now();
+    const clientRoom = `${clientKey(req)}:${id}`;
+    if (
+      pinFailures.count(clientRoom, t) >= MAX_PIN_FAILURES ||
+      pinFailures.count(id, t) >= MAX_ROOM_PIN_FAILURES
+    )
+      throw new HttpError(429, 'too many attempts');
+    if (!isPin(given) || !safeEqual(pinHashOf(id, given), hash)) {
+      pinFailures.add(clientRoom, t);
+      pinFailures.add(id, t);
+      throw new HttpError(403, 'wrong pin');
+    }
+    pinFailures.clear(clientRoom);
+  };
+
+  const checkOwner = (req: IncomingMessage, id: string) => {
+    const hash = store.ownerHash(id);
+    if (hash === null) throw new HttpError(404, 'room not found');
+    const token = req.headers['x-owner-token'];
+    if (typeof token !== 'string' || !safeEqual(sha256(token), hash))
+      throw new HttpError(403, 'not the owner');
   };
 
   const subscribe = (req: IncomingMessage, res: ServerResponse, room: Room) => {
@@ -156,47 +200,63 @@ export const createApp = ({ store, password, now = Date.now }: AppOptions) => {
       throw new HttpError(404, 'not found');
     const id = parts[2]?.toUpperCase();
     const action = parts[3];
+    const pin = req.headers['x-room-pin'];
 
     if (id === undefined) {
       if (req.method !== 'POST') throw new HttpError(405, 'method not allowed');
-      const body = await readJson(req);
-      const b = (body ?? {}) as Record<string, unknown>;
-      checkPassword(req, b.password);
-      const input = parseNewRoom(b.room);
-      if (input === null) throw new HttpError(400, 'invalid room');
+      const body = (await readJson(req)) as Record<string, unknown> | null;
+      const t = now();
+      const client = clientKey(req);
+      if (creates.count(client, t) >= MAX_CREATES)
+        throw new HttpError(429, 'too many rooms');
+      const input = parseNewRoom(body?.room);
+      if (input === null || !isPin(body?.pin))
+        throw new HttpError(400, 'invalid room');
+      creates.add(client, t);
       const ownerToken = randomBytes(24).toString('hex');
-      const room = createRoom(newId(), input, now());
-      store.insert(room, sha256(ownerToken));
+      const room = createRoom(newId(), input, t);
+      store.insert(room, sha256(ownerToken), pinHashOf(room.id, body.pin));
       send(res, 201, { room, ownerToken });
       return;
     }
 
     if (action === undefined) {
       if (req.method === 'GET') {
+        checkPin(req, id, pin);
         send(res, 200, { room: getRoom(id) });
         return;
       }
       if (req.method === 'DELETE') {
-        const hash = store.ownerHash(id);
-        if (hash === null) throw new HttpError(404, 'room not found');
-        const token = req.headers['x-owner-token'];
-        if (typeof token !== 'string' || !safeEqual(sha256(token), hash))
-          throw new HttpError(403, 'not the owner');
+        checkOwner(req, id);
         store.delete(id);
-        for (const sub of subscribers.get(id) ?? [])
-          sub.end(`data: ${JSON.stringify({ deleted: true })}\n\n`);
+        notify(id, { deleted: true }, true);
         send(res, 204);
         return;
       }
       throw new HttpError(405, 'method not allowed');
     }
 
+    // EventSource cannot send headers, so the stream takes the PIN in the
+    // query string
     if (action === 'events' && req.method === 'GET') {
+      checkPin(req, id, url.searchParams.get('pin'));
       subscribe(req, res, getRoom(id));
       return;
     }
 
+    if (action === 'pin' && req.method === 'PUT') {
+      checkOwner(req, id);
+      const body = (await readJson(req)) as Record<string, unknown> | null;
+      if (!isPin(body?.pin)) throw new HttpError(400, 'invalid pin');
+      store.setPinHash(id, pinHashOf(id, body.pin));
+      // Others must enter the new PIN
+      notify(id, { pinChanged: true }, true);
+      send(res, 204);
+      return;
+    }
+
     if (action === 'ops' && req.method === 'POST') {
+      checkPin(req, id, pin);
       const body = (await readJson(req)) as Record<string, unknown> | null;
       const room = getRoom(id);
       const baseVersion = body?.baseVersion;
@@ -216,7 +276,7 @@ export const createApp = ({ store, password, now = Date.now }: AppOptions) => {
           error: 'version conflict',
           room: getRoom(id)
         });
-      broadcast(next);
+      notify(id, { version: next.version });
       send(res, 200, { room: next });
       return;
     }

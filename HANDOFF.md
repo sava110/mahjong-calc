@@ -156,9 +156,10 @@ HANDOFF.md の「2. Claude への引き継ぎ」に従って minipc に導入し
 対局ルーム機能には API サーバー ([server/](server/)) が必要です。Node.js 24 の標準機能 (`node:http`, `node:sqlite`) だけで動き、npm の依存はありません。データは SQLite (`/data/rooms.db`) に保存されます。
 
 - イメージ: リポジトリ直下で `docker build -f server/Dockerfile -t mahjong-calc-api .`
-- 環境変数
-  - `ROOM_PASSWORD`: ルーム作成の合言葉。**未設定だとルームを作れない**。値はオーナーが決め、`~/docker/` の `.env` などに置いてチャットには出さない
-  - `PORT` (既定 8787)、`DB_PATH` (既定 `/data/rooms.db`)
+- 環境変数: `PORT` (既定 8787)、`DB_PATH` (既定 `/data/rooms.db`)
+  - 以前の `ROOM_PASSWORD` (ルーム作成の共通合言葉) は廃止した。compose に残っていても無視されるので、消してよい
+- ルームは誰でも作れる (同じ IP から1時間に10室まで)。参加にはルームコードと、作成者が決める数字4桁の合言葉が必要。合言葉は ID を混ぜた SHA-256 で保存し、同じ IP から同じルームへの間違いは10分に10回、ルーム全体で30回までで、超えるとしばらく受け付けない
+- 合言葉の仕組みを入れる前に作られたルーム (合言葉なし) は、サーバー起動時に削除する (オーナー了承済み)
 - フロントの nginx ([deploy/nginx.conf](deploy/nginx.conf)) が `/api/` をコンテナ名 `mahjong-calc-api` の 8787 番へ転送する。API コンテナが無くても nginx は起動し、`/api/` だけ 502 になる
 - `~/docker/docker-compose.yml` に追加するサービスの例 (フロントのサービスと同じネットワークに置く):
 
@@ -169,8 +170,6 @@ HANDOFF.md の「2. Claude への引き継ぎ」に従って minipc に導入し
       dockerfile: server/Dockerfile
     container_name: mahjong-calc-api
     restart: unless-stopped
-    environment:
-      ROOM_PASSWORD: ${ROOM_PASSWORD}
     volumes:
       - mahjong-calc-data:/data
   ```

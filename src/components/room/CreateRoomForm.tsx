@@ -2,9 +2,11 @@ import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRoom } from '../../contexts/room';
 import { useStore } from '../../contexts/store';
-import { RoomApiError } from '../../lib/room/api';
+import { RoomApiError, randomPin } from '../../lib/room/api';
+import { isPin } from '../../lib/room/ops';
 import type { RoomRule } from '../../lib/room/types';
 import { Segment } from '../ui/Segment';
+import { PinInput } from './PinInput';
 
 const umaPresets = {
   4: [
@@ -55,7 +57,7 @@ export const CreateRoomForm: FC<{ onCancel: () => void }> = ({ onCancel }) => {
   );
   const [length, setLength] = useState<RoomRule['length']>('hanchan');
   const [tobi, setTobi] = useState(true);
-  const [password, setPassword] = useState('');
+  const [pin, setPin] = useState(randomPin);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -75,7 +77,7 @@ export const CreateRoomForm: FC<{ onCancel: () => void }> = ({ onCancel }) => {
     setBusy(true);
     setError(null);
     try {
-      await create(password, {
+      await create(pin, {
         name: name.trim(),
         seats: seats.slice(0, players).map(s => s.trim()),
         rule: {
@@ -92,14 +94,8 @@ export const CreateRoomForm: FC<{ onCancel: () => void }> = ({ onCancel }) => {
       });
     } catch (e) {
       setError(
-        e instanceof RoomApiError
-          ? e.status === 403
-            ? t('room.error-password')
-            : e.status === 429
-              ? t('room.error-too-many')
-              : e.status === 503
-                ? t('room.error-disabled')
-                : t('room.send-error')
+        e instanceof RoomApiError && e.status === 429
+          ? t('room.error-too-many-rooms')
           : t('room.send-error')
       );
     } finally {
@@ -202,16 +198,22 @@ export const CreateRoomForm: FC<{ onCancel: () => void }> = ({ onCancel }) => {
         />
       </div>
       <p className="text-xs text-stone-500">{t('room.rule-from-calculator')}</p>
-      <label className="flex flex-col gap-1">
-        <span className="font-bold">{t('room.password')}</span>
-        <input
-          className={inputClasses}
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-        />
-      </label>
+      <div className="flex flex-col gap-1">
+        <label htmlFor="room-pin" className="font-bold">
+          {t('room.pin')}
+        </label>
+        <span className="text-xs text-stone-500">{t('room.pin-help')}</span>
+        <div className="flex gap-2">
+          <PinInput id="room-pin" value={pin} onChange={setPin} />
+          <button
+            type="button"
+            className="shrink-0 rounded-lg border border-stone-300 px-3 text-sm dark:border-stone-700"
+            onClick={() => setPin(randomPin())}
+          >
+            {t('room.pin-shuffle')}
+          </button>
+        </div>
+      </div>
       {error !== null && (
         <p role="alert" className="text-sm text-red-600 dark:text-red-400">
           {error}
@@ -229,7 +231,7 @@ export const CreateRoomForm: FC<{ onCancel: () => void }> = ({ onCancel }) => {
           type="submit"
           disabled={
             busy ||
-            password === '' ||
+            !isPin(pin) ||
             !pointsValid(startPoints) ||
             !pointsValid(returnPoints)
           }

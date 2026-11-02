@@ -7,18 +7,14 @@ import { SeatPicker } from './SeatPicker';
 
 export const RoomScreen: FC = () => {
   const { t } = useTranslation();
-  const { current, room, status, leave } = useRoom();
+  const { current, room, status, leave, joinPrompt } = useRoom();
 
   if (current !== null && room === null) {
     return (
       <div className="flex flex-col items-center gap-3 p-8 text-center">
-        {status === 'loading' || status === 'idle' ? (
-          <p className="text-stone-500">{t('room.loading')}</p>
-        ) : (
+        {status === 'offline' ? (
           <>
-            <p>
-              {status === 'not-found' ? t('room.not-found') : t('room.offline')}
-            </p>
+            <p>{t('room.offline')}</p>
             <button
               type="button"
               className="rounded-lg border border-stone-300 px-4 py-2 dark:border-stone-700"
@@ -27,11 +23,19 @@ export const RoomScreen: FC = () => {
               {t('room.back-to-lobby')}
             </button>
           </>
+        ) : (
+          <p className="text-stone-500">{t('room.loading')}</p>
         )}
       </div>
     );
   }
-  if (current === null || room === null) return <RoomLobby />;
+  if (current === null || room === null)
+    // Remounted so a new prompt fills in the code and error
+    return (
+      <RoomLobby
+        key={joinPrompt === null ? '' : `${joinPrompt.id}:${joinPrompt.error}`}
+      />
+    );
   if (current.seat === null || current.seat >= room.rule.players)
     return <SeatPicker room={room} />;
   return (

@@ -1,6 +1,6 @@
 import { type FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdShare, MdUndo } from 'react-icons/md';
+import { MdPersonAdd, MdUndo } from 'react-icons/md';
 import {
   type HoraPrefill,
   type SendResult,
@@ -9,8 +9,10 @@ import {
 import { currentGameState, finalResult, replayGame } from '../../lib/room/game';
 import type { Room, RoomEvent, RoomOp } from '../../lib/room/types';
 import { Button } from '../ui/Button';
+import { ChangePinSheet } from './ChangePinSheet';
 import { History } from './History';
 import { HoraDialog } from './HoraDialog';
+import { InviteSheet } from './InviteSheet';
 import { ResultTable } from './ResultTable';
 import { RyukyokuDialog } from './RyukyokuDialog';
 import { ScoreDisplay } from './ScoreDisplay';
@@ -26,13 +28,31 @@ interface RoomViewProps {
 
 export const RoomView: FC<RoomViewProps> = ({ room, mySeat }) => {
   const { t } = useTranslation();
-  const { send, leave, setSeat, remove, current, pendingHora, setPendingHora } =
-    useRoom();
+  const {
+    send,
+    leave,
+    setSeat,
+    remove,
+    current,
+    pendingHora,
+    setPendingHora,
+    showInvite,
+    setShowInvite
+  } = useRoom();
   const [mode, setMode] = useState<'diff' | 'score'>('diff');
   const [dialog, setDialog] = useState<
-    { type: 'hora'; prefill: HoraPrefill | null } | { type: 'ryukyoku' } | null
+    | { type: 'hora'; prefill: HoraPrefill | null }
+    | { type: 'ryukyoku' }
+    | { type: 'invite' }
+    | { type: 'change-pin' }
+    | null
   >(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  // Invite the others right after creating the room
+  useEffect(() => {
+    if (showInvite) setDialog({ type: 'invite' });
+  }, [showInvite]);
 
   // A win sent from the calculator screen
   useEffect(() => {
@@ -64,20 +84,6 @@ export const RoomView: FC<RoomViewProps> = ({ room, mySeat }) => {
     setDialog(null);
   };
 
-  const share = async () => {
-    const url = `${location.origin}/?room=${room.id}`;
-    try {
-      if (typeof navigator.share === 'function')
-        await navigator.share({ title: room.name, url });
-      else {
-        await navigator.clipboard.writeText(url);
-        setMessage(t('room.link-copied'));
-      }
-    } catch {
-      // Cancelled by the user
-    }
-  };
-
   return (
     <div className="flex flex-col gap-3 p-3 pr-[max(0.75rem,env(safe-area-inset-right))] pl-[max(0.75rem,env(safe-area-inset-left))] md:mx-auto md:max-w-xl">
       <div className="flex items-center gap-2">
@@ -92,10 +98,12 @@ export const RoomView: FC<RoomViewProps> = ({ room, mySeat }) => {
             </span>
           </div>
         </div>
-        <Button onClick={share}>
-          <MdShare />
-          {t('room.share')}
-        </Button>
+        {current?.pin != null && (
+          <Button onClick={() => setDialog({ type: 'invite' })}>
+            <MdPersonAdd />
+            {t('room.invite')}
+          </Button>
+        )}
       </div>
 
       <ScoreDisplay
@@ -214,6 +222,15 @@ export const RoomView: FC<RoomViewProps> = ({ room, mySeat }) => {
         {current?.ownerToken != null && (
           <button
             type="button"
+            className="py-2 text-left"
+            onClick={() => setDialog({ type: 'change-pin' })}
+          >
+            {t('room.change-pin')}
+          </button>
+        )}
+        {current?.ownerToken != null && (
+          <button
+            type="button"
             className="py-2 text-left text-red-600 dark:text-red-400"
             onClick={() => {
               if (window.confirm(t('room.delete-confirm'))) remove();
@@ -232,6 +249,25 @@ export const RoomView: FC<RoomViewProps> = ({ room, mySeat }) => {
           prefill={dialog.prefill}
           onSubmit={submit}
           onClose={() => setDialog(null)}
+        />
+      )}
+      {dialog?.type === 'invite' && current?.pin != null && (
+        <InviteSheet
+          room={room}
+          pin={current.pin}
+          justCreated={showInvite}
+          onClose={() => {
+            setShowInvite(false);
+            setDialog(null);
+          }}
+        />
+      )}
+      {dialog?.type === 'change-pin' && (
+        <ChangePinSheet
+          onDone={changed =>
+            // Share the new PIN straight away
+            setDialog(changed ? { type: 'invite' } : null)
+          }
         />
       )}
       {dialog?.type === 'ryukyoku' && (
