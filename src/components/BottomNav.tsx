@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IconType } from 'react-icons';
-import { MdCalculate, MdSettings, MdTableView } from 'react-icons/md';
+import { MdCalculate, MdGroups, MdSettings, MdTableView } from 'react-icons/md';
 import { useStore } from '../contexts/store';
 import type { AppState } from '../lib/store/state';
 
@@ -12,6 +12,7 @@ const navItems: {
 }[] = [
   { id: 'main', icon: MdCalculate, label: 'header.calculator' },
   { id: 'scoring-table', icon: MdTableView, label: 'header.scoring-table' },
+  { id: 'room', icon: MdGroups, label: 'header.room' },
   { id: 'settings', icon: MdSettings, label: 'header.settings' }
 ];
 

@@ -29,11 +29,18 @@
 @theme {
   --animate-page-forward: page-forward 200ms ease-out;
   --animate-page-back: page-back 200ms ease-out;
+  --animate-sheet-in: sheet-in 200ms ease-out;
 
   @keyframes page-forward {
     from {
       opacity: 0;
       transform: translateX(2rem);
+    }
+  }
+  @keyframes sheet-in {
+    from {
+      opacity: 0;
+      transform: translateY(2rem);
     }
   }
   @keyframes page-back {
@@ -42,4 +49,12 @@
       transform: translateX(-2rem);
     }
   }
+}
+
+/* Digits styled after the score displays on automatic tables */
+.led {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  color: #ff7a4d;
+  text-shadow: 0 0 6px rgb(255 90 50 / 0.6);
 }

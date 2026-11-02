@@ -2,6 +2,7 @@ import { type FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   MdCalculate,
+  MdGroups,
   MdHelp,
   MdSettings,
   MdTableView,
@@ -101,6 +102,23 @@ export const Header: FC = () => {
         >
           <MdTableView size="1.8rem" />
           <div>{t('header.scoring-table')}</div>
+        </button>
+        <button
+          type="button"
+          className={
+            currentScreen === 'room'
+              ? buttonClasses.screenActive
+              : buttonClasses.screen
+          }
+          onClick={() =>
+            dispatch({
+              type: 'set-current-screen',
+              payload: currentScreen === 'room' ? 'main' : 'room'
+            })
+          }
+        >
+          <MdGroups size="1.8rem" />
+          <div>{t('header.room')}</div>
         </button>
         <button
           type="button"

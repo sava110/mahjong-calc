@@ -151,6 +151,34 @@ HANDOFF.md の「2. Claude への引き継ぎ」に従って minipc に導入し
 7. **Cloudflare Tunnel の確認**: トンネルの作成とトークン設定はオーナーが行う (1-4)。Claude は `systemctl status cloudflared` で動作を確認し、公開 URL に `curl -I https://<公開URL>/` を実行して 200 が返ることを確認する。トークンをチャットに出させない。
 8. 完了したら、公開 URL、更新方法 (`scripts/deploy.sh` の実行) と、未解決の点をオーナーに報告する。
 
-### 2-6. 参考: minipc を使わない選択肢
+### 2-6. 対局ルームの API サーバー (develop ブランチで追加)
+
+対局ルーム機能には API サーバー ([server/](server/)) が必要です。Node.js 24 の標準機能 (`node:http`, `node:sqlite`) だけで動き、npm の依存はありません。データは SQLite (`/data/rooms.db`) に保存されます。
+
+- イメージ: リポジトリ直下で `docker build -f server/Dockerfile -t mahjong-calc-api .`
+- 環境変数
+  - `ROOM_PASSWORD`: ルーム作成の合言葉。**未設定だとルームを作れない**。値はオーナーが決め、`~/docker/` の `.env` などに置いてチャットには出さない
+  - `PORT` (既定 8787)、`DB_PATH` (既定 `/data/rooms.db`)
+- フロントの nginx ([deploy/nginx.conf](deploy/nginx.conf)) が `/api/` をコンテナ名 `mahjong-calc-api` の 8787 番へ転送する。API コンテナが無くても nginx は起動し、`/api/` だけ 502 になる
+- `~/docker/docker-compose.yml` に追加するサービスの例 (フロントのサービスと同じネットワークに置く):
+
+  ```yaml
+  mahjong-calc-api:
+    build:
+      context: /home/<user>/mahjong-calc
+      dockerfile: server/Dockerfile
+    container_name: mahjong-calc-api
+    restart: unless-stopped
+    environment:
+      ROOM_PASSWORD: ${ROOM_PASSWORD}
+    volumes:
+      - mahjong-calc-data:/data
+  ```
+
+  `volumes:` (トップレベル) に `mahjong-calc-data:` も追加する。データはこのボリュームにだけあるので、バックアップする場合は `/data/rooms.db` をコピーする
+- `scripts/deploy.sh` は今のところフロントのコンテナだけを作り直す。API も更新するには `docker compose build mahjong-calc-api && docker compose up -d --no-deps mahjong-calc-api` を追加する
+- 保存期間は無期限 (自動削除なし)。ルームを作った端末から削除できる
+
+### 2-7. 参考: minipc を使わない選択肢
 
 将来、minipc の運用が手間になった場合は、Cloudflare Pages に GitHub リポジトリをつなげば、push するたびに自動でビルド・公開できます。ただしビルド環境に Rust と wasm-pack が必要なので、ビルドコマンドの工夫が要ります。今回はオーナーの希望どおり minipc で公開します。

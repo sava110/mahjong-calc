@@ -4,7 +4,7 @@ import type { Rule } from '../rule';
 import type { Table } from '../table';
 
 export interface AppState {
-  currentScreen: 'main' | 'scoring-table' | 'settings';
+  currentScreen: 'main' | 'scoring-table' | 'room' | 'settings';
   currentScoringTableTab: 'score' | 'diff';
   currentSettingsTab: 'rule' | 'appearance' | 'about';
   appConfig: AppConfig;

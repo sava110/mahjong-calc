@@ -24,10 +24,16 @@ export default {
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
-        cleanupOutdatedCaches: true
+        cleanupOutdatedCaches: true,
+        // The room API must always reach the server
+        navigateFallbackDenylist: [/^\/api\//]
       }
     })
   ],
+  server: {
+    // Room API (npm run dev:server)
+    proxy: { '/api': 'http://localhost:8787' }
+  },
   build: {
     // top-level await
     target: ['chrome89', 'edge89', 'firefox89', 'safari15', 'es2022']

@@ -4,12 +4,14 @@ import type { AppState } from '../lib/store/state';
 import { Calculator } from './Calculator';
 import { ScoringTable } from './ScoringTable';
 import { Settings } from './Settings';
+import { RoomScreen } from './room/RoomScreen';
 
 // Screens further right in the header slide in from the right
 const screenOrder: Record<AppState['currentScreen'], number> = {
   main: 0,
   'scoring-table': 1,
-  settings: 2
+  room: 2,
+  settings: 3
 };
 
 const animationClasses = {
@@ -34,6 +36,7 @@ const AppContent: FC = () => {
       <div key={currentScreen} className={animationClasses[direction]}>
         {currentScreen === 'main' && <Calculator />}
         {currentScreen === 'scoring-table' && <ScoringTable />}
+        {currentScreen === 'room' && <RoomScreen />}
         {currentScreen === 'settings' && <Settings />}
       </div>
     </div>

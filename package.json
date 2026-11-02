@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "build:wasm": "cd wasm/decomposer && wasm-pack build",
     "dev": "vite",
+    "dev:server": "ROOM_PASSWORD=dev node --watch server/index.ts",
     "lint": "biome check",
     "lint:fix": "biome check --write",
     "prepare": "husky",
