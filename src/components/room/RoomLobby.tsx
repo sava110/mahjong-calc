@@ -1,23 +1,42 @@
 import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdClose, MdNavigateNext } from 'react-icons/md';
-import { useRoom } from '../../contexts/room';
+import { type OpenResult, useRoom } from '../../contexts/room';
+import type { JoinedRoom } from '../../lib/room/local';
 import { normalizeRoomId } from '../../lib/room/local';
+import { isPin } from '../../lib/room/ops';
 import { CreateRoomForm } from './CreateRoomForm';
+import { PinInput } from './PinInput';
 
 const cardClasses =
   'flex flex-col gap-3 rounded-xl bg-white p-3 shadow-sm dark:bg-stone-800';
 
 export const RoomLobby: FC = () => {
   const { t } = useTranslation();
-  const { joined, open, forget, status } = useRoom();
-  const [code, setCode] = useState('');
+  const { joined, open, forget, status, joinPrompt } = useRoom();
+  const [code, setCode] = useState(joinPrompt?.id ?? '');
+  const [pin, setPin] = useState('');
   const [creating, setCreating] = useState(false);
-  const [notFound, setNotFound] = useState(false);
+  const [error, setError] = useState<Exclude<OpenResult, 'ok'> | null>(
+    joinPrompt?.error ?? null
+  );
 
-  const join = async (id: string) => {
-    setNotFound(false);
-    if (!(await open(id))) setNotFound(true);
+  const join = async (id: string, roomPin: string) => {
+    setError(null);
+    const result = await open(id, roomPin);
+    if (result !== 'ok') {
+      setError(result);
+      setCode(normalizeRoomId(id));
+      setPin('');
+    }
+  };
+
+  // A remembered room opens with its PIN; one without asks for it
+  const openRecent = (r: JoinedRoom) => {
+    if (r.pin === null) {
+      setCode(r.id);
+      setError(null);
+    } else join(r.id, r.pin);
   };
 
   return (
@@ -25,33 +44,43 @@ export const RoomLobby: FC = () => {
       <section className={cardClasses}>
         <h2 className="text-lg font-bold">{t('room.join')}</h2>
         <form
-          className="flex gap-2"
+          className="flex flex-col gap-3"
           onSubmit={e => {
             e.preventDefault();
-            join(code);
+            join(code, pin);
           }}
         >
-          <input
-            className="min-w-0 flex-1 rounded-lg border border-stone-300 bg-white px-3 py-3 font-mono text-lg tracking-widest uppercase dark:border-stone-700 dark:bg-stone-950"
-            value={code}
-            maxLength={6}
-            autoCapitalize="characters"
-            autoComplete="off"
-            placeholder={t('room.code-placeholder')}
-            aria-label={t('room.code')}
-            onChange={e => setCode(normalizeRoomId(e.target.value))}
-          />
+          <div className="grid grid-cols-[3fr_2fr] gap-2">
+            <label className="flex flex-col gap-1">
+              <span className="text-sm font-bold">{t('room.code')}</span>
+              <input
+                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-3 text-center font-mono text-2xl tracking-widest uppercase dark:border-stone-700 dark:bg-stone-950"
+                value={code}
+                maxLength={6}
+                autoCapitalize="characters"
+                autoComplete="off"
+                placeholder={t('room.code-placeholder')}
+                onChange={e => setCode(normalizeRoomId(e.target.value))}
+              />
+            </label>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="join-pin" className="text-sm font-bold">
+                {t('room.pin')}
+              </label>
+              <PinInput id="join-pin" value={pin} onChange={setPin} />
+            </div>
+          </div>
           <button
             type="submit"
-            disabled={code.length !== 6 || status === 'loading'}
-            className="rounded-lg bg-primary-700 px-5 font-bold text-white disabled:opacity-30"
+            disabled={code.length !== 6 || !isPin(pin) || status === 'loading'}
+            className="rounded-lg bg-primary-700 py-3 font-bold text-white disabled:opacity-30"
           >
             {t('room.join-button')}
           </button>
         </form>
-        {notFound && (
+        {error !== null && (
           <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-            {t('room.not-found')}
+            {t(`room.error-${error}`)}
           </p>
         )}
       </section>
@@ -65,7 +94,7 @@ export const RoomLobby: FC = () => {
                 <button
                   type="button"
                   className="flex min-w-0 flex-1 items-center gap-2 py-3 text-left"
-                  onClick={() => join(r.id)}
+                  onClick={() => openRecent(r)}
                 >
                   <span className="min-w-0 flex-1 truncate">
                     {r.name || t('room.untitled')}

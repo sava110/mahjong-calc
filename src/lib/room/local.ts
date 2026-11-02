@@ -6,6 +6,8 @@ export interface JoinedRoom {
   // null until the player picks a seat
   seat: number | null;
   ownerToken: string | null;
+  // Four-digit PIN; null for entries saved before PINs existed
+  pin: string | null;
   lastOpened: number;
 }
 

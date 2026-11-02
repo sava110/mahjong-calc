@@ -22,10 +22,21 @@ export class RoomStore {
         doc TEXT NOT NULL,
         version INTEGER NOT NULL,
         owner_hash TEXT NOT NULL,
+        pin_hash TEXT,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL
       );
     `);
+    const columns = this.#db.prepare('PRAGMA table_info(rooms)').all();
+    if (!columns.some(c => column(c, 'name') === 'pin_hash'))
+      this.#db.exec('ALTER TABLE rooms ADD COLUMN pin_hash TEXT');
+    // Rooms from before per-room PINs cannot be joined any more; the owner
+    // agreed to drop them
+    const dropped = this.#db
+      .prepare('DELETE FROM rooms WHERE pin_hash IS NULL')
+      .run();
+    if (Number(dropped.changes) > 0)
+      console.log(`deleted ${dropped.changes} rooms without a PIN`);
   }
 
   exists(id: string): boolean {
@@ -47,16 +58,30 @@ export class RoomStore {
     return column(row, 'owner_hash');
   }
 
-  insert(room: Room, ownerHash: string): void {
+  pinHash(id: string): string | null {
+    const row = this.#db
+      .prepare('SELECT pin_hash FROM rooms WHERE id = ?')
+      .get(id);
+    return column(row, 'pin_hash');
+  }
+
+  setPinHash(id: string, pinHash: string): void {
+    this.#db
+      .prepare('UPDATE rooms SET pin_hash = ? WHERE id = ?')
+      .run(pinHash, id);
+  }
+
+  insert(room: Room, ownerHash: string, pinHash: string): void {
     this.#db
       .prepare(
-        'INSERT INTO rooms (id, doc, version, owner_hash, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
+        'INSERT INTO rooms (id, doc, version, owner_hash, pin_hash, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
       )
       .run(
         room.id,
         JSON.stringify(room),
         room.version,
         ownerHash,
+        pinHash,
         room.createdAt,
         room.updatedAt
       );

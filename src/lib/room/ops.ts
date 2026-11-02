@@ -9,6 +9,10 @@ import type {
   RoomWin
 } from './types.ts';
 
+// Room PIN: four digits, set by the creator and needed to join
+export const isPin = (v: unknown): v is string =>
+  typeof v === 'string' && /^[0-9]{4}$/.test(v);
+
 export const MAX_NAME_LENGTH = 20;
 export const MAX_NOTE_LENGTH = 100;
 export const MAX_EVENTS_PER_GAME = 200;
