@@ -24,7 +24,9 @@ export default {
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
-        cleanupOutdatedCaches: true
+        cleanupOutdatedCaches: true,
+        // The room API must always reach the server
+        navigateFallbackDenylist: [/^\/api\//]
       }
     })
   ],
