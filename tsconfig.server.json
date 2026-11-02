@@ -1,0 +1,17 @@
+{
+  "extends": "@tsconfig/strictest/tsconfig.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.server.tsbuildinfo",
+    "target": "esnext",
+    "lib": ["esnext"],
+    "types": ["node"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noEmit": true
+  },
+  "include": ["./server", "./src/lib/room/types.ts", "./src/lib/room/ops.ts"]
+}

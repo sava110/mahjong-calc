@@ -28,6 +28,10 @@ export default {
       }
     })
   ],
+  server: {
+    // Room API (npm run dev:server)
+    proxy: { '/api': 'http://localhost:8787' }
+  },
   build: {
     // top-level await
     target: ['chrome89', 'edge89', 'firefox89', 'safari15', 'es2022']
