@@ -47,7 +47,7 @@ export const Header: FC = () => {
           </button>
         )}
         <a
-          href="https://github.com/livewing/mahjong-calc/blob/main/doc/how-to-use.md"
+          href="https://github.com/sava110/mahjong-calc/blob/main/doc/how-to-use.md"
           target="_blank"
           rel="noreferrer"
           className={buttonClasses.default}

@@ -38,7 +38,7 @@ export const About: FC = () => {
         </div>
       </div>
       <div className="flex">
-        <Link href="https://github.com/livewing/mahjong-calc">
+        <Link href="https://github.com/sava110/mahjong-calc">
           <div className="flex items-center gap-2">
             <FaGithub size="1.8rem" />
             GitHub

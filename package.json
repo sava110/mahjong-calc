@@ -18,10 +18,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/livewing/mahjong-calc.git"
+    "url": "https://github.com/sava110/mahjong-calc.git"
   },
   "bugs": {
-    "url": "https://github.com/livewing/mahjong-calc/issues"
+    "url": "https://github.com/sava110/mahjong-calc/issues"
   },
   "private": true,
   "dependencies": {

@@ -145,9 +145,8 @@ HANDOFF.md の「2. Claude への引き継ぎ」に従って minipc に導入し
    - `sudo nginx -t` で確認してから `sudo systemctl reload nginx` を実行する
    - `curl -I http://127.0.0.1:8080/` と、`dist/assets/` 内の `.wasm` ファイルへのリクエストで 200 が返り、Content-Type が正しいことを確認する
 5. **更新用スクリプトを作る**: リポジトリ内に `scripts/deploy.sh` を作る。中身は `git pull --ff-only`、`npm ci`、`npm run build:wasm`、`npm run build`、`npm test`、`rsync -a --delete dist/ /var/www/mahjong-calc/` の順で、`set -euo pipefail` を付ける。作ったらオーナーに確認してからコミットする。
-6. **自分のドメインに合わせて書き換える** (オーナーに確認してから実施)
-   - [index.html](index.html) の `og:url` と `og:image` が上流のドメイン (`mahjong-calc.livewing.net`) になっているので、公開 URL に変える
-   - [src/components/Header.tsx](src/components/Header.tsx) のヘルプのリンクが上流リポジトリの `doc/how-to-use.md` を指している。このリポジトリに向けるか確認する
+6. **公開 URL を設定する**: リポジトリ直下に `.env.local` (git 管理外) を作り、`VITE_SITE_URL=https://<公開URL>` と書いてから再ビルドする。ビルド時に `og:url` と `og:image` が出力される ([plugins/site-url.ts](plugins/site-url.ts))。未設定ならこの 2 つは出力されない
+   - ヘルプと About の GitHub リンクはこのリポジトリを指している
    - フッターなどにある上流と FluffyStuff へのクレジット・ライセンスのリンクは **残す** (MIT / CC BY のライセンス表示のため)
 7. **Cloudflare Tunnel の確認**: トンネルの作成とトークン設定はオーナーが行う (1-4)。Claude は `systemctl status cloudflared` で動作を確認し、公開 URL に `curl -I https://<公開URL>/` を実行して 200 が返ることを確認する。トークンをチャットに出させない。
 8. 完了したら、公開 URL、更新方法 (`scripts/deploy.sh` の実行) と、未解決の点をオーナーに報告する。
