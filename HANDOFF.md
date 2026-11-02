@@ -176,7 +176,8 @@ HANDOFF.md の「2. Claude への引き継ぎ」に従って minipc に導入し
   ```
 
   `volumes:` (トップレベル) に `mahjong-calc-data:` も追加する。データはこのボリュームにだけあるので、バックアップする場合は `/data/rooms.db` をコピーする
-- `scripts/deploy.sh` は今のところフロントのコンテナだけを作り直す。API も更新するには `docker compose build mahjong-calc-api && docker compose up -d --no-deps mahjong-calc-api` を追加する
+- `scripts/deploy.sh` はフロント (`mahjong-calc`) と API (`mahjong-calc-api`) の両方を作り直す。minipc では毎日 04:00 JST に systemd ユーザータイマー `mahjong-calc-deploy.timer` から実行される
+- minipc ではデータを名前付きボリュームではなく `~/server/app_data/mahjong-calc/` (bind mount) に置いている
 - 保存期間は無期限 (自動削除なし)。ルームを作った端末から削除できる
 
 ### 2-7. 参考: minipc を使わない選択肢
