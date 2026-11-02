@@ -1,12 +1,20 @@
 import { type FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdHelp, MdSettings, MdTableView, MdUpdate } from 'react-icons/md';
+import {
+  MdCalculate,
+  MdHelp,
+  MdSettings,
+  MdTableView,
+  MdUpdate
+} from 'react-icons/md';
 import { useStore } from '../contexts/store';
 
 // Screen buttons are in the bottom navigation on small screens
 const buttonClasses = {
   default:
     'flex items-center gap-1 p-1 hover:bg-white/10 rounded-lg transition',
+  active:
+    'flex items-center gap-1 p-1 bg-primary-600 hover:bg-primary-500 rounded-lg transition',
   screen:
     'hidden md:flex items-center gap-1 p-1 hover:bg-white/10 rounded-lg transition',
   screenActive:
@@ -53,6 +61,20 @@ export const Header: FC = () => {
             <div className="hidden sm:block">{t('header.update')}</div>
           </button>
         )}
+        <button
+          type="button"
+          className={
+            currentScreen === 'main'
+              ? buttonClasses.active
+              : buttonClasses.default
+          }
+          onClick={() =>
+            dispatch({ type: 'set-current-screen', payload: 'main' })
+          }
+        >
+          <MdCalculate size="1.8rem" />
+          <div className="whitespace-nowrap">{t('header.calculator')}</div>
+        </button>
         <a
           href="https://github.com/sava110/mahjong-calc/blob/main/doc/how-to-use.md"
           target="_blank"

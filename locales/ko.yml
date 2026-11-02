@@ -3,7 +3,7 @@ locale:
 translation:
   header:
     title: 마작 점수 계산기
-    calculator: 계산
+    calculator: 점수 계산
     update: 업데이트
     help: 도움말
     scoring-table: 점수표

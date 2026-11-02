@@ -3,7 +3,7 @@ locale:
 translation:
   header:
     title: 麻雀得点計算機
-    calculator: 計算
+    calculator: 点数計算
     update: アップデート
     help: ヘルプ
     scoring-table: 得点早見表
