@@ -220,7 +220,7 @@ translation:
     tsumo-with-bonus-non-dealer: "{{a}} · {{b}} は {{c}} · {{d}}"
     tsumo-dealer: "{{count}} オール"
     tsumo-non-dealer: "{{a}} · {{b}}"
-    tsumo-non-dealer-diff: "{{a}} / {{b}}"
+    tsumo-non-dealer-diff: "子 {{a}} / 親 {{b}}"
   settings:
     rule: ルール
     empty: 空

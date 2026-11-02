@@ -41,7 +41,7 @@ const Content: FC<ContentProps> = ({ fu, han }) => {
     fu === 20
       ? '-'
       : currentScoringTableTab === 'diff'
-        ? `${-((ronPoint + honba * (players - 1)) * 2 + deposit)}`
+        ? `${(ronPoint + honba * (players - 1)) * 2 + deposit}`
         : table.continue > 0
           ? `${t('scoring-table.ron-with-bonus', {
               a: ronPoint,
@@ -53,7 +53,7 @@ const Content: FC<ContentProps> = ({ fu, han }) => {
       ? '-'
       : isDealer
         ? currentScoringTableTab === 'diff'
-          ? `${-((pay.nonDealer + honba) * players + deposit)}`
+          ? `${(pay.nonDealer + honba) * players + deposit}`
           : table.continue > 0
             ? t('scoring-table.tsumo-with-bonus-dealer', {
                 a: pay.nonDealer,
@@ -62,18 +62,16 @@ const Content: FC<ContentProps> = ({ fu, han }) => {
             : t('scoring-table.tsumo-dealer', { count: pay.nonDealer })
         : currentScoringTableTab === 'diff'
           ? t('scoring-table.tsumo-non-dealer-diff', {
-              a: -(
+              a:
                 pay.nonDealer * (players - 1) +
                 pay.dealer +
                 honba * players +
-                deposit
-              ),
-              b: -(
+                deposit,
+              b:
                 pay.nonDealer * (players - 2) +
                 pay.dealer * 2 +
                 honba * players +
                 deposit
-              )
             })
           : table.continue > 0
             ? t('scoring-table.tsumo-with-bonus-non-dealer', {

@@ -222,7 +222,7 @@ translation:
     tsumo-with-bonus-non-dealer: "{{a}}/{{b}} - {{c}}/{{d}}"
     tsumo-dealer: "{{count}} All"
     tsumo-non-dealer: "{{a}}/{{b}}"
-    tsumo-non-dealer-diff: "{{a}}/{{b}}"
+    tsumo-non-dealer-diff: "ND {{a}}/D {{b}}"
   settings:
     rule: Rule
     empty: Empty
