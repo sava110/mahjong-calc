@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './components/App';
+import { RoomProvider } from './contexts/room';
 import { StoreProvider } from './contexts/store';
 import { initI18n } from './lib/i18n';
 import './style.css';
@@ -11,7 +12,9 @@ initI18n().then(() => {
   createRoot(el).render(
     <React.StrictMode>
       <StoreProvider>
-        <App />
+        <RoomProvider>
+          <App />
+        </RoomProvider>
       </StoreProvider>
     </React.StrictMode>
   );
