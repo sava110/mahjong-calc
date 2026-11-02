@@ -207,6 +207,8 @@ translation:
   scoring-table:
     dealer: Dealer
     non-dealer: Non-dealer
+    players-4: 4P
+    players-3: 3P
     score: Score
     diff: Difference
     fu: "{{count}} Fu"

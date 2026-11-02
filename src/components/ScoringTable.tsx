@@ -1,8 +1,9 @@
-import React, { type FC } from 'react';
+import React, { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IconType } from 'react-icons';
 import { MdAddChart, MdCalculate } from 'react-icons/md';
 import { useStore } from '../contexts/store';
+import type { Rule } from '../lib/rule';
 import {
   calculateBasePoint,
   ceil100,
@@ -22,11 +23,12 @@ const Header: FC<{ children: React.ReactNode }> = ({ children }) => (
 interface ContentProps {
   fu: number;
   han: number;
+  players: Rule['players'];
 }
-const Content: FC<ContentProps> = ({ fu, han }) => {
+const Content: FC<ContentProps> = ({ fu, han, players }) => {
   const [{ currentScoringTableTab, currentRule, table }] = useStore();
   const { t } = useTranslation();
-  const { doubleWindFu, roundedMangan, honbaBonus, players } = currentRule;
+  const { doubleWindFu, roundedMangan, honbaBonus } = currentRule;
 
   if ((fu < 30 && han === 1) || (fu === 110 && han === 1 && doubleWindFu === 2))
     return <div />;
@@ -34,7 +36,7 @@ const Content: FC<ContentProps> = ({ fu, han }) => {
   const base = calculateBasePoint(fu, han, roundedMangan, true);
   const isDealer = table.seat === 'east';
   const ronPoint = ceil100(base * ronMultiplier(isDealer));
-  const pay = tsumoPayments(base, isDealer, currentRule);
+  const pay = tsumoPayments(base, isDealer, { ...currentRule, players });
   const honba = table.continue * honbaBonus;
   const deposit = 1000 * table.deposit;
   const ron =
@@ -138,16 +140,18 @@ export const ScoringTable: FC = () => {
     {
       currentScoringTableTab,
       appConfig: { showBazoro },
-      currentRule: { accumlatedYakuman }
+      currentRule: { accumlatedYakuman, players: rulePlayers }
     },
     dispatch
   ] = useStore();
   const { t } = useTranslation();
+  // Only changes the table, so the rule and the hand input are kept
+  const [players, setPlayers] = useState(rulePlayers);
   const bazoro = showBazoro ? 2 : 0;
 
   return (
     <div>
-      <ScoringTableHeader />
+      <ScoringTableHeader players={players} onChangePlayers={setPlayers} />
       <div className="flex flex-col gap-2 p-2 pr-[max(0.5rem,env(safe-area-inset-right))] pl-[max(0.5rem,env(safe-area-inset-left))]">
         <div className="sm:basis-1/4">
           <MenuTab
@@ -211,7 +215,7 @@ export const ScoringTable: FC = () => {
                       </div>
                     </Header>
                     {([1, 2, 3, 4] as const).map(han => (
-                      <Content key={han} fu={fu} han={han} />
+                      <Content key={han} fu={fu} han={han} players={players} />
                     ))}
                   </>
                 )}
@@ -254,11 +258,11 @@ export const ScoringTable: FC = () => {
                   : t('scoring-table.yakuman')}
               </div>
             </Header>
-            <Content fu={0} han={5} />
-            <Content fu={0} han={6} />
-            <Content fu={0} han={8} />
-            <Content fu={0} han={11} />
-            <Content fu={0} han={13} />
+            <Content fu={0} han={5} players={players} />
+            <Content fu={0} han={6} players={players} />
+            <Content fu={0} han={8} players={players} />
+            <Content fu={0} han={11} players={players} />
+            <Content fu={0} han={13} players={players} />
           </div>
         </div>
       </div>
