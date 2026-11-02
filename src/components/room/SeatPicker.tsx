@@ -55,6 +55,18 @@ export const SeatPicker: FC<{ room: Room }> = ({ room }) => {
         >
           {t('room.sit-here')}
         </button>
+        <div className="flex flex-col gap-1 border-t border-stone-200 pt-3 dark:border-stone-700">
+          <button
+            type="button"
+            className="rounded-lg border border-stone-300 py-3 font-bold dark:border-stone-600"
+            onClick={() => setSeat('spectator')}
+          >
+            {t('room.spectate')}
+          </button>
+          <p className="text-center text-xs text-stone-500">
+            {t('room.spectate-help')}
+          </p>
+        </div>
         <button type="button" className="py-2 text-sm" onClick={leave}>
           {t('room.back-to-lobby')}
         </button>

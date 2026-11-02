@@ -252,11 +252,13 @@ translation:
     error-pin-changed: "The PIN was changed. Enter the new PIN."
     error-too-many-rooms: "Too many rooms were created in a short time. Please try again later."
     error-wrong-pin: "Wrong PIN."
+    exit-fullscreen: "Exit full screen"
     final-result: "Final result"
     finish-confirm: "End this game and show the final result?"
     finish-game: "End this game"
     forget: "Remove from list"
     from-calculator: "Uses the result from the calculator."
+    fullscreen: "Full screen"
     game-n: "Game {{n}}"
     hanchan: "Hanchan"
     hand-of: "Win by {{name}}"
@@ -317,7 +319,11 @@ translation:
     showing-diff: "Showing differences from you (tap for scores)"
     showing-score: "Showing scores (tap for differences)"
     sit-here: "Take this seat"
+    spectate: "Watch as a spectator"
+    spectate-help: "Watch the scores without taking a seat. Spectators cannot record results."
+    spectating: "Spectating (you cannot record results)"
     start-points: "Starting points"
+    take-seat: "Take a seat"
     tenpai: "Tenpai"
     tobi: "End on bust"
     tonpu: "Tonpuu"
@@ -377,3 +383,4 @@ translation:
   footer:
     license: This app is licensed under <1>The MIT License</1>. We assume no liability for this app.
     credit: The mahjong tile images are from <1>FluffyStuff/riichi-mahjong-tiles</1> (<2>CC BY</2>).
+    credit-font: The seven-segment digits use the <1>DSEG</1> font by keshikan (<2>SIL OFL 1.1</2>).

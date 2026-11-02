@@ -250,11 +250,13 @@ translation:
     error-pin-changed: "合言葉が変更されました。新しい合言葉を入力してください。"
     error-too-many-rooms: "短い時間にたくさんのルームが作られたため、しばらく作成できません。"
     error-wrong-pin: "合言葉が違います。"
+    exit-fullscreen: "通常表示に戻る"
     final-result: "最終結果"
     finish-confirm: "この半荘を終了して最終結果を出します。よろしいですか?"
     finish-game: "この半荘を終了する"
     forget: "一覧から消す"
     from-calculator: "点数計算画面の結果を使います。"
+    fullscreen: "全画面表示"
     game-n: "第{{n}}半荘"
     hanchan: "半荘"
     hand-of: "{{name}} の和了"
@@ -315,7 +317,11 @@ translation:
     showing-diff: "他家はあなたとの点差を表示中 (タップで点数表示)"
     showing-score: "全員の点数を表示中 (タップで点差表示)"
     sit-here: "この席で参加する"
+    spectate: "観戦する"
+    spectate-help: "席に着かずに点数を見るだけの参加です。記録の入力はできません。"
+    spectating: "観戦中 (記録の入力はできません)"
     start-points: "開始点"
+    take-seat: "席に着く"
     tenpai: "聴牌した人"
     tobi: "トビ終了"
     tonpu: "東風戦"
@@ -375,3 +381,4 @@ translation:
   footer:
     license: この Web アプリケーションは <1>The MIT License</1> の下でライセンスされています。本アプリケーションの作者は、本アプリケーションに関しての責任を負わないものとします。
     credit: 麻雀牌の画像は <1>FluffyStuff/riichi-mahjong-tiles</1> のものを使用しています (<2>CC BY</2>) 。
+    credit-font: 7セグメント表示の数字は keshikan 氏の <1>DSEG</1> フォントを使用しています (<2>SIL OFL 1.1</2>) 。

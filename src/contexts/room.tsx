@@ -21,6 +21,7 @@ import {
 } from '../lib/room/api';
 import {
   type JoinedRoom,
+  type SeatChoice,
   loadRooms,
   normalizeRoomId,
   saveRooms
@@ -68,7 +69,7 @@ interface RoomContextValue {
   create: (pin: string, input: NewRoomInput) => Promise<void>;
   leave: () => void;
   forget: (id: string) => void;
-  setSeat: (seat: number | null) => void;
+  setSeat: (seat: SeatChoice | null) => void;
   send: (op: RoomOp) => Promise<SendResult>;
   changePin: (pin: string) => Promise<void>;
   remove: () => Promise<void>;
@@ -212,7 +213,7 @@ export const RoomProvider: FC<{ children?: React.ReactNode }> = ({
   );
 
   const setSeat = useCallback(
-    (seat: number | null) => patchCurrent({ seat }),
+    (seat: SeatChoice | null) => patchCurrent({ seat }),
     [patchCurrent]
   );
 

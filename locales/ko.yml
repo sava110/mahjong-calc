@@ -250,11 +250,13 @@ translation:
     error-pin-changed: "암호가 변경되었습니다. 새 암호를 입력하세요."
     error-too-many-rooms: "짧은 시간에 많은 방이 만들어져 잠시 만들 수 없습니다."
     error-wrong-pin: "암호가 틀렸습니다."
+    exit-fullscreen: "전체 화면 종료"
     final-result: "최종 결과"
     finish-confirm: "이 반장을 끝내고 최종 결과를 표시할까요?"
     finish-game: "이 반장 끝내기"
     forget: "목록에서 삭제"
     from-calculator: "점수 계산 화면의 결과를 사용합니다."
+    fullscreen: "전체 화면"
     game-n: "제{{n}}반장"
     hanchan: "반장"
     hand-of: "{{name}}의 화료"
@@ -315,7 +317,11 @@ translation:
     showing-diff: "당신과의 점수 차 표시 중 (탭하면 점수)"
     showing-score: "전원 점수 표시 중 (탭하면 점수 차)"
     sit-here: "이 자리로 참가"
+    spectate: "관전하기"
+    spectate-help: "자리에 앉지 않고 점수만 봅니다. 관전자는 기록을 입력할 수 없습니다."
+    spectating: "관전 중 (기록을 입력할 수 없습니다)"
     start-points: "시작 점수"
+    take-seat: "자리에 앉기"
     tenpai: "텐파이한 사람"
     tobi: "토비 종료"
     tonpu: "동풍전"
@@ -375,3 +381,4 @@ translation:
   footer:
     license: 이 앱은 <1>The MIT License</1>에 따라 라이센스가 부여되며, 우리는 이 앱에 대해 어떠한 책임도 지지 않습니다.
     credit: 마작 타일 이미지는 <1>FluffyStuff/riichi-mahjong-tiles</1>에서 가져온 것입니다. (<2>CC BY</2>).
+    credit-font: 7세그먼트 숫자는 keshikan의 <1>DSEG</1> 글꼴을 사용합니다 (<2>SIL OFL 1.1</2>).

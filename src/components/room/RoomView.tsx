@@ -23,7 +23,8 @@ const cardClasses =
 
 interface RoomViewProps {
   room: Room;
-  mySeat: number;
+  // null for spectators, who can only watch
+  mySeat: number | null;
 }
 
 export const RoomView: FC<RoomViewProps> = ({ room, mySeat }) => {
@@ -48,6 +49,7 @@ export const RoomView: FC<RoomViewProps> = ({ room, mySeat }) => {
     | null
   >(null);
   const [message, setMessage] = useState<string | null>(null);
+  const spectator = mySeat === null;
 
   // Invite the others right after creating the room
   useEffect(() => {
@@ -124,7 +126,7 @@ export const RoomView: FC<RoomViewProps> = ({ room, mySeat }) => {
         </div>
       )}
 
-      {!state.finished && (
+      {!state.finished && !spectator && (
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
@@ -147,29 +149,33 @@ export const RoomView: FC<RoomViewProps> = ({ room, mySeat }) => {
         <section className={cardClasses}>
           <h2 className="font-bold">{t('room.final-result')}</h2>
           <ResultTable room={room} results={finalResult(state, room.rule)} />
-          <button
-            type="button"
-            className="rounded-xl bg-primary-700 py-3 font-bold text-white shadow-sm"
-            onClick={() => run({ type: 'new-game' })}
-          >
-            {t('room.next-game')}
-          </button>
+          {!spectator && (
+            <button
+              type="button"
+              className="rounded-xl bg-primary-700 py-3 font-bold text-white shadow-sm"
+              onClick={() => run({ type: 'new-game' })}
+            >
+              {t('room.next-game')}
+            </button>
+          )}
         </section>
       )}
 
       <section className={cardClasses}>
         <div className="flex items-center justify-between">
           <h2 className="font-bold">{t('room.history')}</h2>
-          <Button
-            disabled={game.events.length === 0 && game.finishedAt === null}
-            onClick={() => {
-              if (window.confirm(t('room.undo-confirm')))
-                run({ type: 'undo', game: gameIndex });
-            }}
-          >
-            <MdUndo />
-            {t('room.undo')}
-          </Button>
+          {!spectator && (
+            <Button
+              disabled={game.events.length === 0 && game.finishedAt === null}
+              onClick={() => {
+                if (window.confirm(t('room.undo-confirm')))
+                  run({ type: 'undo', game: gameIndex });
+              }}
+            >
+              <MdUndo />
+              {t('room.undo')}
+            </Button>
+          )}
         </div>
         <History room={room} events={game.events} states={states} />
       </section>
@@ -197,7 +203,7 @@ export const RoomView: FC<RoomViewProps> = ({ room, mySeat }) => {
       )}
 
       <section className={`${cardClasses} text-sm`}>
-        {!state.finished && (
+        {!state.finished && !spectator && (
           <button
             type="button"
             className="py-2 text-left"
@@ -214,7 +220,7 @@ export const RoomView: FC<RoomViewProps> = ({ room, mySeat }) => {
           className="py-2 text-left"
           onClick={() => setSeat(null)}
         >
-          {t('room.change-seat')}
+          {spectator ? t('room.take-seat') : t('room.change-seat')}
         </button>
         <button type="button" className="py-2 text-left" onClick={leave}>
           {t('room.leave')}
@@ -241,7 +247,7 @@ export const RoomView: FC<RoomViewProps> = ({ room, mySeat }) => {
         )}
       </section>
 
-      {dialog?.type === 'hora' && (
+      {dialog?.type === 'hora' && mySeat !== null && (
         <HoraDialog
           room={room}
           state={state}
@@ -270,7 +276,7 @@ export const RoomView: FC<RoomViewProps> = ({ room, mySeat }) => {
           }
         />
       )}
-      {dialog?.type === 'ryukyoku' && (
+      {dialog?.type === 'ryukyoku' && !spectator && (
         <RyukyokuDialog
           room={room}
           state={state}

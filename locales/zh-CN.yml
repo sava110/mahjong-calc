@@ -250,11 +250,13 @@ translation:
     error-pin-changed: "口令已更改，请输入新口令。"
     error-too-many-rooms: "短时间内创建的房间过多，请稍后再试。"
     error-wrong-pin: "口令错误。"
+    exit-fullscreen: "退出全屏"
     final-result: "最终结果"
     finish-confirm: "结束本半庄并显示最终结果吗?"
     finish-game: "结束本半庄"
     forget: "从列表中移除"
     from-calculator: "使用点数计算画面的结果。"
+    fullscreen: "全屏显示"
     game-n: "第{{n}}半庄"
     hanchan: "半庄"
     hand-of: "{{name}} 的和牌"
@@ -315,7 +317,11 @@ translation:
     showing-diff: "正在显示与你的点差(点击显示点数)"
     showing-score: "正在显示全员点数(点击显示点差)"
     sit-here: "坐这个位置"
+    spectate: "观战"
+    spectate-help: "不入座，仅查看点数。观战者无法录入记录。"
+    spectating: "观战中（无法录入记录）"
     start-points: "起始点"
+    take-seat: "入座"
     tenpai: "听牌者"
     tobi: "被飞结束"
     tonpu: "东风战"
@@ -375,3 +381,4 @@ translation:
   footer:
     license: 这个 APP 使用了 <1>The MIT License</1>。由这个 APP 引起的纠纷和造成的一切后果，其责任与本作者无关。
     credit: 麻将牌的图像属于 <1>FluffyStuff/riichi-mahjong-tiles</1> (<2>CC BY</2>) 。
+    credit-font: 七段数码管数字使用 keshikan 的 <1>DSEG</1> 字体（<2>SIL OFL 1.1</2>）。

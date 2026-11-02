@@ -6,6 +6,7 @@ import type { JoinedRoom } from '../../lib/room/local';
 import { normalizeRoomId } from '../../lib/room/local';
 import { isPin } from '../../lib/room/ops';
 import { CreateRoomForm } from './CreateRoomForm';
+import { NormalizedInput } from './NormalizedInput';
 import { PinInput } from './PinInput';
 
 const cardClasses =
@@ -51,16 +52,17 @@ export const RoomLobby: FC = () => {
           }}
         >
           <div className="grid grid-cols-[3fr_2fr] gap-2">
-            <label className="flex flex-col gap-1">
+            <label htmlFor="join-code" className="flex flex-col gap-1">
               <span className="text-sm font-bold">{t('room.code')}</span>
-              <input
+              <NormalizedInput
+                id="join-code"
                 className="w-full rounded-lg border border-stone-300 bg-white px-3 py-3 text-center font-mono text-2xl tracking-widest uppercase dark:border-stone-700 dark:bg-stone-950"
                 value={code}
                 maxLength={6}
                 autoCapitalize="characters"
-                autoComplete="off"
                 placeholder={t('room.code-placeholder')}
-                onChange={e => setCode(normalizeRoomId(e.target.value))}
+                normalize={normalizeRoomId}
+                onChange={setCode}
               />
             </label>
             <div className="flex flex-col gap-1">
@@ -72,7 +74,11 @@ export const RoomLobby: FC = () => {
           </div>
           <button
             type="submit"
-            disabled={code.length !== 6 || !isPin(pin) || status === 'loading'}
+            disabled={
+              normalizeRoomId(code).length !== 6 ||
+              !isPin(pin) ||
+              status === 'loading'
+            }
             className="rounded-lg bg-primary-700 py-3 font-bold text-white disabled:opacity-30"
           >
             {t('room.join-button')}

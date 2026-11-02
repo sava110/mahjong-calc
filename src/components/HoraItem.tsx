@@ -28,7 +28,8 @@ const SendToRoom: FC<HoraItemProps> = ({ info }) => {
   if (
     room === null ||
     game === undefined ||
-    current?.seat == null ||
+    // Spectators cannot record results
+    typeof current?.seat !== 'number' ||
     currentGameState(game, room.rule).finished
   )
     return null;

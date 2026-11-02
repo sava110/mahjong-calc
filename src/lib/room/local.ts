@@ -1,10 +1,13 @@
 // Rooms this device has joined, kept in localStorage
 
+// A seat index, or watching without a seat
+export type SeatChoice = number | 'spectator';
+
 export interface JoinedRoom {
   id: string;
   name: string;
-  // null until the player picks a seat
-  seat: number | null;
+  // null until the player picks a seat or chooses to watch
+  seat: SeatChoice | null;
   ownerToken: string | null;
   // Four-digit PIN; null for entries saved before PINs existed
   pin: string | null;
@@ -45,5 +48,9 @@ export const saveRooms = (storage: RoomStorage) => {
   }
 };
 
+// NFKC turns full-width letters and digits from Japanese keyboards into ASCII
 export const normalizeRoomId = (s: string) =>
-  s.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  s
+    .normalize('NFKC')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '');

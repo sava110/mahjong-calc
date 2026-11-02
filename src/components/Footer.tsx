@@ -36,6 +36,13 @@ export const Footer: FC = () => {
           <Link href="https://github.com/FluffyStuff/riichi-mahjong-tiles/blob/master/LICENSE.md" />
         </Trans>
       </p>
+      <p>
+        <Trans i18n={i18n} i18nKey="footer.credit-font">
+          {''}
+          <Link href="https://www.keshikan.net/fonts.html" />
+          <Link href="https://github.com/sava110/mahjong-calc/blob/main/src/fonts/dseg/LICENSE.txt" />
+        </Trans>
+      </p>
     </footer>
   );
 };

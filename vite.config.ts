@@ -25,6 +25,8 @@ export default {
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
+        // The default plus the seven-segment font, so scores look the same offline
+        globPatterns: ['**/*.{js,wasm,css,html,woff2}'],
         // The room API must always reach the server
         navigateFallbackDenylist: [/^\/api\//]
       }

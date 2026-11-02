@@ -51,10 +51,37 @@
   }
 }
 
-/* Digits styled after the score displays on automatic tables */
+/* Seven-segment digits (DSEG7 by keshikan, SIL OFL 1.1: fonts/dseg/LICENSE.txt) */
+@font-face {
+  font-family: "DSEG7 Classic";
+  src: url("./fonts/dseg/DSEG7Classic-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* Digits styled after the score displays on automatic tables (components/room/Led.tsx) */
 .led {
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.1em;
   color: #ff7a4d;
   text-shadow: 0 0 6px rgb(255 90 50 / 0.6);
+  white-space: nowrap;
+}
+.led-sign {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+.led-digits {
+  position: relative;
+  font-family: "DSEG7 Classic", ui-monospace, "SF Mono", Menlo, Consolas,
+    monospace;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.05em;
+}
+.led-unlit {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  text-shadow: none;
 }

@@ -36,7 +36,10 @@ export const RoomScreen: FC = () => {
         key={joinPrompt === null ? '' : `${joinPrompt.id}:${joinPrompt.error}`}
       />
     );
-  if (current.seat === null || current.seat >= room.rule.players)
+  const { seat } = current;
+  // A seat beyond the player count is left over from a room re-created
+  // with fewer players
+  if (seat === null || (seat !== 'spectator' && seat >= room.rule.players))
     return <SeatPicker room={room} />;
   return (
     <>
@@ -45,7 +48,7 @@ export const RoomScreen: FC = () => {
           {t('room.offline')}
         </div>
       )}
-      <RoomView room={room} mySeat={current.seat} />
+      <RoomView room={room} mySeat={seat === 'spectator' ? null : seat} />
     </>
   );
 };
