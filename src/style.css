@@ -9,3 +9,22 @@
     cursor: pointer;
   }
 }
+
+/* Page transitions. No fill-mode, so no transform remains to break fixed descendants. */
+@theme {
+  --animate-page-forward: page-forward 200ms ease-out;
+  --animate-page-back: page-back 200ms ease-out;
+
+  @keyframes page-forward {
+    from {
+      opacity: 0;
+      transform: translateX(2rem);
+    }
+  }
+  @keyframes page-back {
+    from {
+      opacity: 0;
+      transform: translateX(-2rem);
+    }
+  }
+}
