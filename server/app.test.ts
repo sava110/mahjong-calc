@@ -148,6 +148,84 @@ describe('room server', () => {
     expect((await get(room.id, '2222')).status).toBe(404);
   });
 
+  test('gathers reported rons and lets only the owner move on', async () => {
+    client = 6;
+    const { room, ownerToken } = await create('3333');
+    let version = room.version;
+    const op = async (body: unknown, token?: string) => {
+      const res = await call(`/${room.id}/ops`, {
+        method: 'POST',
+        headers: {
+          'X-Room-Pin': '3333',
+          ...(token === undefined ? {} : { 'X-Owner-Token': token })
+        },
+        body: { op: body, baseVersion: version }
+      });
+      if (res.ok) version = ((await res.json()) as { room: Room }).room.version;
+      return res;
+    };
+    const win = (winner: number, base: number) => ({
+      winner,
+      base,
+      han: null,
+      fu: null,
+      yakuman: 0
+    });
+    const report = (winner: number, loser: number | null) => ({
+      type: 'report-hora',
+      game: 0,
+      loser,
+      win: win(winner, 2000),
+      riichi: [winner]
+    });
+
+    // Two players report a ron on the same discard from their own phones
+    expect((await op(report(1, 3))).status).toBe(200);
+    expect((await op(report(2, 3))).status).toBe(200);
+    // A tsumo cannot join a ron
+    expect((await op(report(0, null))).status).toBe(422);
+    const pending = (
+      (await (await get(room.id, '3333')).json()) as { room: Room }
+    ).room.pending;
+    expect(pending?.wins.map(w => w.winner)).toEqual([1, 2]);
+    expect(pending?.riichi).toEqual([1, 2]);
+
+    const confirm = {
+      type: 'confirm-hora',
+      game: 0,
+      event: {
+        type: 'hora',
+        at: 1,
+        riichi: [1, 2],
+        loser: 3,
+        wins: [win(1, 2000), win(2, 2000)],
+        deltas: [0, 8000, 9000, -17000]
+      }
+    };
+    const draw = {
+      type: 'append',
+      game: 0,
+      event: {
+        type: 'ryukyoku',
+        at: 1,
+        riichi: [],
+        tenpai: [],
+        deltas: [0, 0, 0, 0]
+      }
+    };
+    // Only the owner confirms the hand or records a draw
+    expect((await op(confirm)).status).toBe(403);
+    expect((await op(draw)).status).toBe(403);
+    expect((await op(confirm, 'wrong')).status).toBe(403);
+    expect((await op(confirm, ownerToken)).status).toBe(200);
+    const after = (
+      (await (await get(room.id, '3333')).json()) as { room: Room }
+    ).room;
+    expect(after.pending).toBeNull();
+    expect(after.games[0]?.events.length).toBe(1);
+    expect((await op(draw, ownerToken)).status).toBe(200);
+  });
+
   test('limits rooms created by one client', async () => {
     client = 5;
     for (let i = 0; i < 10; i++) await create();

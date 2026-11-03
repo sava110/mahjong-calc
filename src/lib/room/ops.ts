@@ -1,6 +1,7 @@
 // Validation and application of room operations. Shared with the server,
 // which treats every request body as untrusted input.
 import type {
+  PendingHora,
   Room,
   RoomEvent,
   RoomGame,
@@ -171,9 +172,88 @@ export const parseOp = (v: Json, room: Room): RoomOp | null => {
       return isGame(v.game) ? { type: 'finish-game', game: v.game } : null;
     case 'new-game':
       return { type: 'new-game' };
+    case 'report-hora': {
+      if (!isGame(v.game)) return null;
+      const { loser, riichi } = v;
+      if (loser !== null && !isSeat(loser, players)) return null;
+      if (!isSeatList(riichi, players)) return null;
+      const win = parseWin(v.win, players);
+      if (win === null || win.winner === loser) return null;
+      return { type: 'report-hora', game: v.game, loser, win, riichi };
+    }
+    case 'withdraw-hora':
+      return isSeat(v.winner, players)
+        ? { type: 'withdraw-hora', winner: v.winner }
+        : null;
+    case 'confirm-hora': {
+      if (!isGame(v.game)) return null;
+      const event = parseEvent(v.event, players);
+      return event?.type === 'hora'
+        ? { type: 'confirm-hora', game: v.game, event }
+        : null;
+    }
+    case 'cancel-hora':
+      return { type: 'cancel-hora' };
     default:
       return null;
   }
+};
+
+// Operations only the room owner may send
+export const isOwnerOp = (op: RoomOp) =>
+  op.type === 'append' ||
+  op.type === 'confirm-hora' ||
+  op.type === 'cancel-hora';
+
+// Pending wins that still belong to the current state of their game
+export const currentPending = (room: Room): PendingHora | null => {
+  const pending = room.pending ?? null;
+  if (pending === null) return null;
+  const game = room.games[pending.game];
+  return pending.game === room.games.length - 1 &&
+    game !== undefined &&
+    game.finishedAt === null &&
+    game.events.length === pending.eventCount
+    ? pending
+    : null;
+};
+
+const union = (a: number[], b: number[]) =>
+  [...new Set([...a, ...b])].sort((x, y) => x - y);
+
+// Adds a reported win to the pending wins, gathering rons on the same discard
+const reportHora = (
+  room: Room,
+  op: Extract<RoomOp, { type: 'report-hora' }>,
+  now: number
+): PendingHora | string => {
+  const game = room.games[op.game];
+  if (game === undefined) return 'game not found';
+  if (op.game !== room.games.length - 1) return 'game not current';
+  if (game.finishedAt !== null) return 'game finished';
+  const pending = currentPending(room);
+  const fresh: PendingHora = {
+    game: op.game,
+    eventCount: game.events.length,
+    loser: op.loser,
+    wins: [op.win],
+    riichi: union([], op.riichi),
+    at: now
+  };
+  if (pending === null) return fresh;
+  const others = pending.wins.filter(w => w.winner !== op.win.winner);
+  // A correction of the only reported win replaces it
+  if (others.length === 0)
+    return { ...fresh, riichi: union(pending.riichi, op.riichi) };
+  // Another win must be a ron on the same discard (double or triple ron)
+  if (pending.loser === null || op.loser === null || pending.loser !== op.loser)
+    return 'conflicting hora';
+  if (others.length + 1 > room.rule.players - 1) return 'too many winners';
+  return {
+    ...pending,
+    wins: [...others, op.win].sort((a, b) => a.winner - b.winner),
+    riichi: union(pending.riichi, op.riichi)
+  };
 };
 
 export const newGame = (now: number): RoomGame => ({
@@ -194,7 +274,8 @@ export const createRoom = (
   name,
   rule,
   seats,
-  games: [newGame(now)]
+  games: [newGame(now)],
+  pending: null
 });
 
 const updateGame = (
@@ -221,23 +302,68 @@ export const applyOp = (room: Room, op: RoomOp, now: number): Room | string => {
         games: updateGame(room, op.game, g => ({
           ...g,
           events: [...g.events, op.event]
-        }))
+        })),
+        pending: null
       });
     }
+    case 'report-hora': {
+      const pending = reportHora(room, op, now);
+      if (typeof pending === 'string') return pending;
+      return next({ pending });
+    }
+    case 'withdraw-hora': {
+      const pending = currentPending(room);
+      if (pending === null) return 'nothing pending';
+      const wins = pending.wins.filter(w => w.winner !== op.winner);
+      if (wins.length === pending.wins.length) return 'not reported';
+      return next({ pending: wins.length === 0 ? null : { ...pending, wins } });
+    }
+    case 'confirm-hora': {
+      const pending = currentPending(room);
+      if (pending === null) return 'nothing pending';
+      const { event } = op;
+      if (event.type !== 'hora' || op.game !== pending.game)
+        return 'stale hora';
+      const winners = (ws: RoomWin[]) =>
+        ws
+          .map(w => w.winner)
+          .sort((a, b) => a - b)
+          .join(',');
+      if (
+        event.loser !== pending.loser ||
+        winners(event.wins) !== winners(pending.wins)
+      )
+        return 'stale hora';
+      const game = room.games[op.game];
+      if (game === undefined) return 'game not found';
+      if (game.events.length >= MAX_EVENTS_PER_GAME) return 'too many events';
+      return next({
+        games: updateGame(room, op.game, g => ({
+          ...g,
+          events: [...g.events, event]
+        })),
+        pending: null
+      });
+    }
+    case 'cancel-hora':
+      if (currentPending(room) === null) return 'nothing pending';
+      return next({ pending: null });
     case 'undo': {
       const game = room.games[op.game];
       if (game === undefined) return 'game not found';
       // Undoing a manual end reopens the game
       if (game.finishedAt !== null)
         return next({
-          games: updateGame(room, op.game, g => ({ ...g, finishedAt: null }))
+          games: updateGame(room, op.game, g => ({ ...g, finishedAt: null })),
+          pending: null
         });
       if (game.events.length === 0) return 'nothing to undo';
       return next({
         games: updateGame(room, op.game, g => ({
           ...g,
           events: g.events.slice(0, -1)
-        }))
+        })),
+        pending: null
       });
     }
     case 'set-seat':
@@ -249,11 +375,12 @@ export const applyOp = (room: Room, op: RoomOp, now: number): Room | string => {
       if (game === undefined) return 'game not found';
       if (game.finishedAt !== null) return 'game finished';
       return next({
-        games: updateGame(room, op.game, g => ({ ...g, finishedAt: now }))
+        games: updateGame(room, op.game, g => ({ ...g, finishedAt: now })),
+        pending: null
       });
     }
     case 'new-game':
       if (room.games.length >= MAX_GAMES_PER_ROOM) return 'too many games';
-      return next({ games: [...room.games, newGame(now)] });
+      return next({ games: [...room.games, newGame(now)], pending: null });
   }
 };

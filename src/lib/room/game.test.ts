@@ -10,7 +10,7 @@ import {
   winBase
 } from './game';
 import { applyOp, createRoom, parseNewRoom, parseOp } from './ops';
-import type { RoomEvent, RoomRule } from './types';
+import type { Room, RoomEvent, RoomOp, RoomRule } from './types';
 
 const rule4: RoomRule = {
   players: 4,
@@ -259,5 +259,51 @@ describe('room ops', () => {
     if (typeof r3 === 'string') throw new Error(r3);
     expect(r3.games[0]?.finishedAt).toBeNull();
     expect(r3.games[0]?.events.length).toBe(1);
+  });
+});
+
+describe('reported wins', () => {
+  const input = parseNewRoom({
+    name: 'x',
+    rule: rule4,
+    seats: ['A', 'B', 'C', 'D']
+  });
+  const win = (winner: number) => ({
+    winner,
+    base: 1000,
+    han: null,
+    fu: null,
+    yakuman: 0
+  });
+  const report = (winner: number, loser: number | null): RoomOp => ({
+    type: 'report-hora',
+    game: 0,
+    loser,
+    win: win(winner),
+    riichi: []
+  });
+  const apply = (room: Room, op: RoomOp) => {
+    const next = applyOp(room, op, 1);
+    if (typeof next === 'string') throw new Error(next);
+    return next;
+  };
+
+  test('a correction replaces the only win, and withdrawing clears it', () => {
+    if (input === null) throw new Error();
+    const room = createRoom('ABC234', input, 0);
+    const r1 = apply(room, report(1, 2));
+    const r2 = apply(r1, report(1, 3));
+    expect(r2.pending?.loser).toBe(3);
+    expect(r2.pending?.wins.length).toBe(1);
+    expect(apply(r2, { type: 'withdraw-hora', winner: 1 }).pending).toBeNull();
+  });
+
+  test('pending wins go stale when the game changes', () => {
+    if (input === null) throw new Error();
+    const room = createRoom('ABC234', input, 0);
+    const r1 = apply(room, report(1, 2));
+    const r2 = apply(r1, { type: 'finish-game', game: 0 });
+    expect(r2.pending).toBeNull();
+    expect(applyOp(r2, { type: 'cancel-hora' }, 2)).toBe('nothing pending');
   });
 });
