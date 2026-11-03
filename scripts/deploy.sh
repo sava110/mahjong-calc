@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# 最新の main を取り込み、Docker イメージを作り直して mahjong-calc (フロント) と
+# 最新の main を取り込み、Docker イメージを作り直して mahjong-calc (API の中継と終了のお知らせ) と
 # mahjong-calc-api (対局ルーム API) のコンテナを入れ替える。
-# ビルド (wasm-pack / npm ci / npm test / vite build) は Dockerfile 内で行う。
+# web 版の配信は終了したので、mahjong-calc のイメージは nginx の設定と静的ページを置くだけ。
 # main に変更がなく、両方のコンテナが動いていれば何もしない (--force で必ず作り直す)。
 # systemd ユーザータイマー mahjong-calc-deploy.timer から毎日実行される。
 set -euo pipefail

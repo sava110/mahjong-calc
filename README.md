@@ -1,5 +1,10 @@
 # mahjong-calc
 
+> **web 版の提供は終了しました。** 点数計算と対局ルームは iOS アプリ [live-mahjong](https://github.com/sava110/live-mahjong)（「牌読み」）に移植しています。
+> このリポジトリで動かしているのは、iOS アプリが使う**対局ルーム API サーバー（`server/`）**だけです。
+> 本番の `mahjong-calc` コンテナ（nginx）は `/api/` を API に中継し、それ以外は終了のお知らせ（`deploy/site/`）を返します。
+> 以下は web 版の説明です（ソースは参照用に残しています）。
+
 麻雀の手牌を入力すると、待ち牌・得点や牌効率の計算をすることができる Web アプリケーション (PWA) です。スマートフォンと PC の Web ブラウザ上で動作します。
 
 [livewing/mahjong-calc](https://github.com/livewing/mahjong-calc) をベースに、以下の機能を追加しています。

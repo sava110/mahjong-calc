@@ -3,6 +3,10 @@
 livewing/mahjong-calc (MIT) をベースにした麻雀点数計算 PWA。3人麻雀とオープン立直 (ローカルルール) を追加している。
 現状・設計判断・デプロイ手順は [HANDOFF.md](HANDOFF.md) を参照。
 
+**web 版の配信は終了した。** 本番で動かしているのはルーム API サーバー（`server/`、コンテナ `mahjong-calc-api`）と、
+`/api/` を中継して終了のお知らせを返す nginx（`Dockerfile`, `deploy/nginx.conf`, `deploy/site/`、コンテナ `mahjong-calc`）だけ。
+クライアントは iOS アプリ（sava110/live-mahjong）。API の形（`src/lib/room/types.ts`, `ops.ts`）を変えるときは iOS 側（MahjongCore の Room）も合わせる。
+
 ## コマンド
 
 - 初回 / WASM 変更時: `npm run build:wasm` (Rust + wasm-pack が必要。生成物 `wasm/decomposer/pkg/` は git 管理外)
