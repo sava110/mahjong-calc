@@ -59,6 +59,21 @@ export interface RoomGame {
   events: RoomEvent[];
 }
 
+// Wins reported from the players' phones, waiting for the room owner to
+// confirm them. Rons on the same discard are gathered here, so a double ron
+// reported from two phones becomes one hand.
+export interface PendingHora {
+  game: number;
+  // Events in the game when the first win was reported. Any change to the
+  // events (a recorded hand, an undo) clears the pending wins.
+  eventCount: number;
+  // null for tsumo
+  loser: number | null;
+  wins: RoomWin[];
+  riichi: number[];
+  at: number;
+}
+
 export interface Room {
   id: string;
   version: number;
@@ -68,10 +83,24 @@ export interface Room {
   rule: RoomRule;
   seats: string[];
   games: RoomGame[];
+  // Missing in rooms created before pending wins existed
+  pending?: PendingHora | null;
 }
 
+// `append`, `confirm-hora` and `cancel-hora` are for the room owner only:
+// the owner decides when the table moves on to the next hand.
 export type RoomOp =
   | { type: 'append'; game: number; event: RoomEvent }
+  | {
+      type: 'report-hora';
+      game: number;
+      loser: number | null;
+      win: RoomWin;
+      riichi: number[];
+    }
+  | { type: 'withdraw-hora'; winner: number }
+  | { type: 'confirm-hora'; game: number; event: RoomEvent }
+  | { type: 'cancel-hora' }
   | { type: 'undo'; game: number }
   | { type: 'set-seat'; seat: number; name: string }
   | { type: 'finish-game'; game: number }

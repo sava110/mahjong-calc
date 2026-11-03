@@ -8,6 +8,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import {
   applyOp,
   createRoom,
+  isOwnerOp,
   isPin,
   parseNewRoom,
   parseOp
@@ -269,6 +270,8 @@ export const createApp = ({ store, now = Date.now }: AppOptions) => {
         });
       const op = parseOp(body?.op, room);
       if (op === null) throw new HttpError(400, 'invalid op');
+      // Recording a hand and confirming reported wins are for the owner
+      if (isOwnerOp(op)) checkOwner(req, id);
       const next = applyOp(room, op, now());
       if (typeof next === 'string') throw new HttpError(422, next);
       if (!store.update(next, room.version))
