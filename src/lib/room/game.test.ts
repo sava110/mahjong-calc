@@ -13,6 +13,7 @@ import {
   applyOp,
   createRoom,
   currentBoard,
+  currentDora,
   parseNewRoom,
   parseOp
 } from './ops';
@@ -368,5 +369,42 @@ describe('board', () => {
     const r2 = applyOp(r1, { type: 'append', game: 0, event }, 2);
     if (typeof r2 === 'string') throw new Error(r2);
     expect(currentBoard(r2)).toBeNull();
+  });
+});
+
+describe('dora', () => {
+  const input = parseNewRoom({
+    name: 'x',
+    rule: rule4,
+    seats: ['A', 'B', 'C', 'D']
+  });
+
+  test('is shared for the current hand only', () => {
+    if (input === null) throw new Error();
+    const room = createRoom('ABC234', input, 0);
+    expect(
+      parseOp({ type: 'set-dora', game: 0, tiles: ['8z'] }, room)
+    ).toBeNull();
+    expect(
+      parseOp({ type: 'set-dora', game: 0, tiles: Array(6).fill('1m') }, room)
+    ).toBeNull();
+    const op = parseOp(
+      { type: 'set-dora', game: 0, tiles: ['3p', '0s'] },
+      room
+    );
+    if (op === null) throw new Error();
+    const r1 = applyOp(room, op, 1);
+    if (typeof r1 === 'string') throw new Error(r1);
+    expect(currentDora(r1)?.tiles).toEqual(['3p', '0s']);
+    const event: RoomEvent = {
+      type: 'ryukyoku',
+      at: 2,
+      riichi: [],
+      tenpai: [],
+      deltas: [0, 0, 0, 0]
+    };
+    const r2 = applyOp(r1, { type: 'append', game: 0, event }, 2);
+    if (typeof r2 === 'string') throw new Error(r2);
+    expect(currentDora(r2)).toBeNull();
   });
 });

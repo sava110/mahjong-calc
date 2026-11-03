@@ -6,6 +6,7 @@ import type {
   PendingHora,
   Room,
   RoomBoard,
+  RoomDora,
   RoomEvent,
   RoomGame,
   RoomOp,
@@ -205,12 +206,25 @@ export const parseOp = (v: Json, room: Room): RoomOp | null => {
       if (parsed.some(s => s === null)) return null;
       return { type: 'set-board', game: v.game, seats: parsed as BoardSeat[] };
     }
+    case 'set-dora': {
+      if (!isGame(v.game)) return null;
+      const { tiles } = v;
+      if (
+        !Array.isArray(tiles) ||
+        tiles.length > MAX_DORA ||
+        !tiles.every(isBoardTile)
+      )
+        return null;
+      return { type: 'set-dora', game: v.game, tiles };
+    }
     default:
       return null;
   }
 };
 
 export const MAX_DISCARDS = 30;
+// The first indicator and up to four kan dora
+export const MAX_DORA = 5;
 
 const isBoardTile = (v: Json): v is string =>
   typeof v === 'string' && /^([0-9][mps]|[1-7]z)$/.test(v);
@@ -240,6 +254,18 @@ const parseBoardSeat = (v: Json): BoardSeat | null => {
     discards: ds as BoardSeat['discards'],
     melds: ms as BoardMeld[]
   };
+};
+
+// The dora indicators of the current hand, or null when they belong to another
+export const currentDora = (room: Room): RoomDora | null => {
+  const dora = room.dora ?? null;
+  if (dora === null) return null;
+  const game = room.games[dora.game];
+  return dora.game === room.games.length - 1 &&
+    game !== undefined &&
+    game.events.length === dora.eventCount
+    ? dora
+    : null;
 };
 
 // The board read for the current hand, or null when it belongs to another
@@ -331,7 +357,8 @@ export const createRoom = (
   seats,
   games: [newGame(now)],
   pending: null,
-  board: null
+  board: null,
+  dora: null
 });
 
 const updateGame = (
@@ -414,6 +441,20 @@ export const applyOp = (room: Room, op: RoomOp, now: number): Room | string => {
           game: op.game,
           eventCount: game.events.length,
           seats: op.seats,
+          at: now
+        }
+      });
+    }
+    case 'set-dora': {
+      const game = room.games[op.game];
+      if (game === undefined) return 'game not found';
+      if (op.game !== room.games.length - 1) return 'game not current';
+      if (game.finishedAt !== null) return 'game finished';
+      return next({
+        dora: {
+          game: op.game,
+          eventCount: game.events.length,
+          tiles: op.tiles,
           at: now
         }
       });

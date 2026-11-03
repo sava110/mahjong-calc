@@ -105,6 +105,15 @@ export interface RoomBoard {
   at: number;
 }
 
+// Dora indicators of one hand, entered by the dealer at the start of the hand
+// and shared with everyone's calculator. Cleared like the board.
+export interface RoomDora {
+  game: number;
+  eventCount: number;
+  tiles: BoardTileName[];
+  at: number;
+}
+
 export interface Room {
   id: string;
   version: number;
@@ -118,6 +127,8 @@ export interface Room {
   pending?: PendingHora | null;
   // Missing in rooms created before the board existed
   board?: RoomBoard | null;
+  // Missing in rooms created before shared dora indicators existed
+  dora?: RoomDora | null;
 }
 
 // `append`, `confirm-hora` and `cancel-hora` are for the room owner only:
@@ -136,6 +147,8 @@ export type RoomOp =
   | { type: 'cancel-hora' }
   // Sent by a spectator's overhead camera; anyone in the room may send it
   | { type: 'set-board'; game: number; seats: BoardSeat[] }
+  // Dora indicators of the current hand; anyone in the room may send them
+  | { type: 'set-dora'; game: number; tiles: string[] }
   | { type: 'undo'; game: number }
   | { type: 'set-seat'; seat: number; name: string }
   | { type: 'finish-game'; game: number }
