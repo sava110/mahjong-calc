@@ -29,10 +29,11 @@ if [[ "${1:-}" != "--force" && "$before" == "$after" ]] \
 fi
 echo "mahjong-calc: ${before:0:7} -> ${after:0:7} をデプロイ"
 
-# ビルドは一時的に 2GB 前後使う。足りなければ現行コンテナのまま止める
+# web 版のビルドを外したので、ビルドで一時的に使うのは数百 MB 程度。
+# 余裕をみて 2000MB 未満なら現行コンテナのまま止める
 avail_mb="$(df -Pm / | awk 'NR==2 {print $4}')"
-if (( avail_mb < 3000 )); then
-  echo "mahjong-calc: ディスク空き ${avail_mb}MB (< 3000MB) のためビルドを中止" >&2
+if (( avail_mb < 2000 )); then
+  echo "mahjong-calc: ディスク空き ${avail_mb}MB (< 2000MB) のためビルドを中止" >&2
   exit 1
 fi
 
