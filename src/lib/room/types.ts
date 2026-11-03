@@ -74,6 +74,37 @@ export interface PendingHora {
   at: number;
 }
 
+// A tile in MPSZ notation: "1m".."9m", "1p".., "1s".., "1z".."7z", with "0m",
+// "0p", "0s" for red fives
+export type BoardTileName = string;
+
+export interface BoardDiscard {
+  tile: BoardTileName;
+  // Laid sideways: the riichi declaration tile
+  sideways: boolean;
+}
+
+export interface BoardMeld {
+  tiles: BoardTileName[];
+  // Closed kan (ankan)
+  closed: boolean;
+}
+
+export interface BoardSeat {
+  // In the order they were discarded
+  discards: BoardDiscard[];
+  melds: BoardMeld[];
+}
+
+// The table as read by a spectator's overhead camera, for one hand. Like
+// pending wins, it is cleared when the events of the game change.
+export interface RoomBoard {
+  game: number;
+  eventCount: number;
+  seats: BoardSeat[];
+  at: number;
+}
+
 export interface Room {
   id: string;
   version: number;
@@ -85,6 +116,8 @@ export interface Room {
   games: RoomGame[];
   // Missing in rooms created before pending wins existed
   pending?: PendingHora | null;
+  // Missing in rooms created before the board existed
+  board?: RoomBoard | null;
 }
 
 // `append`, `confirm-hora` and `cancel-hora` are for the room owner only:
@@ -101,6 +134,8 @@ export type RoomOp =
   | { type: 'withdraw-hora'; winner: number }
   | { type: 'confirm-hora'; game: number; event: RoomEvent }
   | { type: 'cancel-hora' }
+  // Sent by a spectator's overhead camera; anyone in the room may send it
+  | { type: 'set-board'; game: number; seats: BoardSeat[] }
   | { type: 'undo'; game: number }
   | { type: 'set-seat'; seat: number; name: string }
   | { type: 'finish-game'; game: number }

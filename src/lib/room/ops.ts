@@ -1,8 +1,11 @@
 // Validation and application of room operations. Shared with the server,
 // which treats every request body as untrusted input.
 import type {
+  BoardMeld,
+  BoardSeat,
   PendingHora,
   Room,
+  RoomBoard,
   RoomEvent,
   RoomGame,
   RoomOp,
@@ -194,9 +197,61 @@ export const parseOp = (v: Json, room: Room): RoomOp | null => {
     }
     case 'cancel-hora':
       return { type: 'cancel-hora' };
+    case 'set-board': {
+      if (!isGame(v.game)) return null;
+      const { seats } = v;
+      if (!Array.isArray(seats) || seats.length !== players) return null;
+      const parsed = seats.map(parseBoardSeat);
+      if (parsed.some(s => s === null)) return null;
+      return { type: 'set-board', game: v.game, seats: parsed as BoardSeat[] };
+    }
     default:
       return null;
   }
+};
+
+export const MAX_DISCARDS = 30;
+
+const isBoardTile = (v: Json): v is string =>
+  typeof v === 'string' && /^([0-9][mps]|[1-7]z)$/.test(v);
+
+const parseBoardMeld = (v: Json): BoardMeld | null => {
+  if (!isRecord(v)) return null;
+  const { tiles, closed } = v;
+  if (!Array.isArray(tiles) || tiles.length < 3 || tiles.length > 4)
+    return null;
+  if (!tiles.every(isBoardTile) || typeof closed !== 'boolean') return null;
+  return { tiles, closed };
+};
+
+const parseBoardSeat = (v: Json): BoardSeat | null => {
+  if (!isRecord(v)) return null;
+  const { discards, melds } = v;
+  if (!Array.isArray(discards) || discards.length > MAX_DISCARDS) return null;
+  if (!Array.isArray(melds) || melds.length > 4) return null;
+  const ds = discards.map(d =>
+    isRecord(d) && isBoardTile(d.tile) && typeof d.sideways === 'boolean'
+      ? { tile: d.tile, sideways: d.sideways }
+      : null
+  );
+  const ms = melds.map(parseBoardMeld);
+  if (ds.some(d => d === null) || ms.some(m => m === null)) return null;
+  return {
+    discards: ds as BoardSeat['discards'],
+    melds: ms as BoardMeld[]
+  };
+};
+
+// The board read for the current hand, or null when it belongs to another
+export const currentBoard = (room: Room): RoomBoard | null => {
+  const board = room.board ?? null;
+  if (board === null) return null;
+  const game = room.games[board.game];
+  return board.game === room.games.length - 1 &&
+    game !== undefined &&
+    game.events.length === board.eventCount
+    ? board
+    : null;
 };
 
 // Operations only the room owner may send
@@ -275,7 +330,8 @@ export const createRoom = (
   rule,
   seats,
   games: [newGame(now)],
-  pending: null
+  pending: null,
+  board: null
 });
 
 const updateGame = (
@@ -348,6 +404,20 @@ export const applyOp = (room: Room, op: RoomOp, now: number): Room | string => {
     case 'cancel-hora':
       if (currentPending(room) === null) return 'nothing pending';
       return next({ pending: null });
+    case 'set-board': {
+      const game = room.games[op.game];
+      if (game === undefined) return 'game not found';
+      if (op.game !== room.games.length - 1) return 'game not current';
+      if (game.finishedAt !== null) return 'game finished';
+      return next({
+        board: {
+          game: op.game,
+          eventCount: game.events.length,
+          seats: op.seats,
+          at: now
+        }
+      });
+    }
     case 'undo': {
       const game = room.games[op.game];
       if (game === undefined) return 'game not found';

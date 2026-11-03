@@ -9,7 +9,13 @@ import {
   ryukyokuDeltas,
   winBase
 } from './game';
-import { applyOp, createRoom, parseNewRoom, parseOp } from './ops';
+import {
+  applyOp,
+  createRoom,
+  currentBoard,
+  parseNewRoom,
+  parseOp
+} from './ops';
 import type { Room, RoomEvent, RoomOp, RoomRule } from './types';
 
 const rule4: RoomRule = {
@@ -305,5 +311,62 @@ describe('reported wins', () => {
     const r2 = apply(r1, { type: 'finish-game', game: 0 });
     expect(r2.pending).toBeNull();
     expect(applyOp(r2, { type: 'cancel-hora' }, 2)).toBe('nothing pending');
+  });
+});
+
+describe('board', () => {
+  const input = parseNewRoom({
+    name: 'x',
+    rule: rule4,
+    seats: ['A', 'B', 'C', 'D']
+  });
+  const seat = {
+    discards: [
+      { tile: '1z', sideways: false },
+      { tile: '0p', sideways: true }
+    ],
+    melds: []
+  };
+  const empty = { discards: [], melds: [] };
+
+  test('validates the tiles and goes stale with the hand', () => {
+    if (input === null) throw new Error();
+    const room = createRoom('ABC234', input, 0);
+    const op = parseOp(
+      { type: 'set-board', game: 0, seats: [seat, empty, empty, empty] },
+      room
+    );
+    if (op === null) throw new Error();
+    expect(
+      parseOp({ type: 'set-board', game: 0, seats: [seat] }, room)
+    ).toBeNull();
+    expect(
+      parseOp(
+        {
+          type: 'set-board',
+          game: 0,
+          seats: [
+            { discards: [{ tile: '8z', sideways: false }], melds: [] },
+            empty,
+            empty,
+            empty
+          ]
+        },
+        room
+      )
+    ).toBeNull();
+    const r1 = applyOp(room, op, 1);
+    if (typeof r1 === 'string') throw new Error(r1);
+    expect(currentBoard(r1)?.seats[0]?.discards.length).toBe(2);
+    const event: RoomEvent = {
+      type: 'ryukyoku',
+      at: 2,
+      riichi: [],
+      tenpai: [],
+      deltas: [0, 0, 0, 0]
+    };
+    const r2 = applyOp(r1, { type: 'append', game: 0, event }, 2);
+    if (typeof r2 === 'string') throw new Error(r2);
+    expect(currentBoard(r2)).toBeNull();
   });
 });
