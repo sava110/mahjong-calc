@@ -385,8 +385,12 @@ describe('dora', () => {
     expect(
       parseOp({ type: 'set-dora', game: 0, tiles: ['8z'] }, room)
     ).toBeNull();
+    // Up to ten: the indicators, kan dora and ura dora
     expect(
-      parseOp({ type: 'set-dora', game: 0, tiles: Array(6).fill('1m') }, room)
+      parseOp({ type: 'set-dora', game: 0, tiles: Array(10).fill('1m') }, room)
+    ).not.toBeNull();
+    expect(
+      parseOp({ type: 'set-dora', game: 0, tiles: Array(11).fill('1m') }, room)
     ).toBeNull();
     const op = parseOp(
       { type: 'set-dora', game: 0, tiles: ['3p', '0s'] },

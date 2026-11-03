@@ -223,8 +223,9 @@ export const parseOp = (v: Json, room: Room): RoomOp | null => {
 };
 
 export const MAX_DISCARDS = 30;
-// The first indicator and up to four kan dora
-export const MAX_DORA = 5;
+// The first indicator, up to four kan dora, and the matching ura dora
+// (the app enters ura dora as ordinary indicators after a riichi win)
+export const MAX_DORA = 10;
 
 const isBoardTile = (v: Json): v is string =>
   typeof v === 'string' && /^([0-9][mps]|[1-7]z)$/.test(v);
